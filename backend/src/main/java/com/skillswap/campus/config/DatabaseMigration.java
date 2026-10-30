@@ -55,6 +55,7 @@ public class DatabaseMigration implements CommandLineRunner {
             addColumnIfMissing(connection, "swap_requests", "created_at", "DATE NULL");
             makeSkillIdNullable(connection);
             widenStatusColumn(connection);
+            widenPasswordColumn(connection);
             try (Statement statement = connection.createStatement()) {
                 statement.executeUpdate("UPDATE swap_requests SET created_at = CURRENT_DATE WHERE created_at IS NULL");
             }
@@ -113,6 +114,15 @@ public class DatabaseMigration implements CommandLineRunner {
         if (!badEnum && !shortVarchar) return;
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("ALTER TABLE swap_requests MODIFY COLUMN status VARCHAR(20) NOT NULL DEFAULT 'PENDING'");
+        }
+    }
+
+    /** BCrypt hashes are 60 chars; older schemas may have a shorter password column. */
+    private void widenPasswordColumn(Connection connection) throws SQLException {
+        String length = columnInfo(connection, "users", "password", "character_maximum_length");
+        if (length == null || Long.parseLong(length) >= 100) return;
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("ALTER TABLE users MODIFY COLUMN password VARCHAR(100) NOT NULL");
         }
     }
 
