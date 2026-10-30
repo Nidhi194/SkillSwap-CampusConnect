@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Students - SkillSwap Campus</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div id="navbar-container"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Find Students</h1>
+        <p class="page-description">Search by skill or peer name, filter by department, and propose a knowledge swap.</p>
+      </div>
+
+      <!-- Search & Filters Bar -->
+      <div class="card search-filter-card">
+        <div class="filters-row">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="search-input" class="form-label">Search by Name or Skill</label>
+            <input 
+              type="text" 
+              id="search-input" 
+              class="form-input" 
+              placeholder="Search by name, department, or skill"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="filter-skill" class="form-label">Filter by Skill</label>
+            <select id="filter-skill" class="form-select">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="filter-department" class="form-label">Filter by Department</label>
+            <select id="filter-department" class="form-select">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-filters" hidden>Clear Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Count -->
+      <div style="margin-bottom: 16px; font-size: 13px; color: var(--color-text-muted);" id="results-count">
+        Loading students...
+      </div>
+
+      <!-- Students Grid -->
+      <div class="students-grid" id="students-grid">
+        <!-- Rendered via JS -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Send Request Modal -->
+  <div class="modal-overlay" id="send-request-modal" role="dialog" aria-modal="true" aria-labelledby="modal-req-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-req-title">Send Skill Exchange Request</h3>
+        <button type="button" class="modal-close" id="btn-close-request-modal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="send-request-modal-form">
+        <div class="modal-body">
+          <p style="font-size: 14px; margin-bottom: 16px;">
+            Propose a skill exchange with <strong id="modal-request-receiver-name">Student</strong>:
+          </p>
+
+          <div class="form-group">
+            <label for="request-skill-wanted" class="form-label">Skill you want to learn from them</label>
+            <select id="request-skill-wanted" class="form-select">
+              <!-- Populated via JS based on target's skillsTeach -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="request-skill-offered" class="form-label">Skill you offer to teach them</label>
+            <select id="request-skill-offered" class="form-select">
+              <!-- Populated via JS based on current user's skillsTeach -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-request-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div><strong>SkillSwap Campus</strong> &mdash; Peer learning made simple.</div>
+      <div>
+        <a href="dashboard.html">Dashboard</a> &bull;
+        <a href="profile.html">My Profile</a> &bull;
+        <a href="requests.html">Requests</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/find-students.js"></script>
+</body>
+</html>

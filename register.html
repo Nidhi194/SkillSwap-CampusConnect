@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - SkillSwap Campus</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div id="navbar-container"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container auth-wrapper">
+      <div class="auth-intro">
+        <span class="auth-eyebrow">SkillSwap Campus</span>
+        <h1>Learn together. Share skills.</h1>
+        <p>SkillSwap Campus is a student skill-exchange platform where students can share skills, discover students with similar learning interests, and connect for peer-to-peer learning.</p>
+        <ul class="benefit-list">
+          <li>Share what you know</li>
+          <li>Learn new skills</li>
+          <li>Connect with students</li>
+        </ul>
+        <p class="auth-callout">Ready to start learning together?</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="auth-brand-mark">SS</span>
+          <h2 class="auth-title">Create Your Profile</h2>
+          <p class="page-description">Create your profile, share your skills, and discover students who can help you learn.</p>
+        </div>
+
+        <form id="register-form" novalidate>
+          <div id="reg-error" class="form-error" role="alert"></div>
+
+          <div class="form-group">
+            <label for="reg-name" class="form-label">Full Name</label>
+            <input 
+              type="text" 
+              id="reg-name" 
+              name="name" 
+              class="form-input" 
+              placeholder="e.g. Your full name" 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email" class="form-label">Campus Email</label>
+            <input 
+              type="email" 
+              id="reg-email" 
+              name="email" 
+              class="form-input" 
+              placeholder="e.g. name@university.edu" 
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password" class="form-label">Password</label>
+            <div class="password-field">
+              <input type="password" id="reg-password" name="password" class="form-input" placeholder="At least 6 characters" required autocomplete="new-password">
+              <button type="button" class="password-toggle" data-target="reg-password" aria-pressed="false">Show</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-department" class="form-label">Department</label>
+            <select id="reg-department" name="department" class="form-select" required>
+              <option value="">Select your department</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Business Administration">Business Administration</option>
+              <option value="Mechanical">Mechanical</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-year" class="form-label">Year of Study</label>
+            <select id="reg-year" name="year" class="form-select" required>
+              <option value="">Select your academic year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Complete Registration</button>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account? <a href="login.html">Login</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div><strong>SkillSwap Campus</strong> &mdash; Peer learning made simple.</div>
+      <div>
+        <a href="index.html">Home</a> &bull;
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

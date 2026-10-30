@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Profile Details - SkillSwap Campus</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div id="navbar-container"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container" id="student-details-container">
+      
+      <!-- Back Navigation & Header -->
+      <div style="margin-bottom: 20px;">
+        <a href="find-students.html" class="btn-text" style="padding-left: 0;">&larr; Back to Student Directory</a>
+      </div>
+
+      <!-- Compatibility Banner Container -->
+      <div id="compatibility-container">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="dashboard-grid">
+        
+        <!-- Left: Student Info Card -->
+        <aside>
+          <div class="card profile-summary-box">
+            <div class="profile-avatar-large" id="detail-avatar">S</div>
+            <h1 class="profile-name" id="detail-name" style="font-size: 20px;">Student Name</h1>
+            <div class="profile-dept" id="detail-dept-year">Department &bull; Year</div>
+            
+            <div style="text-align: left; margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 16px;">
+              <div class="form-group" style="margin-bottom: 12px;">
+                <span class="form-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted);">Campus Email</span>
+                <span id="detail-email" style="font-size: 13px; font-weight: 500;">-</span>
+              </div>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <span class="form-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted);">About / Bio</span>
+                <p id="detail-bio" style="font-size: 13px; color: var(--color-text-main); line-height: 1.45;"></p>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block" id="btn-open-detail-request">Send Exchange Request</button>
+          </div>
+        </aside>
+
+        <!-- Right: Skills Overview -->
+        <section class="dashboard-sections">
+          
+          <!-- Skills They Can Teach -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Skills They Can Teach</h3>
+            </div>
+            <p class="form-help" style="margin-bottom: 10px;">Skills this student is ready to mentor and share:</p>
+            <div class="skill-tag-group" id="detail-teach-skills">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Skills They Want to Learn -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Skills They Want to Learn</h3>
+            </div>
+            <p class="form-help" style="margin-bottom: 10px;">Skills this student is eager to learn from campus peers:</p>
+            <div class="skill-tag-group" id="detail-learn-skills">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Send Request Modal -->
+  <div class="modal-overlay" id="detail-request-modal" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-detail-title">Propose Skill Exchange</h3>
+        <button type="button" class="modal-close" id="btn-close-detail-modal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="detail-request-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="detail-skill-wanted" class="form-label">Skill you want to learn from them</label>
+            <select id="detail-skill-wanted" class="form-select">
+              <!-- Filled via JS -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="detail-skill-offered" class="form-label">Skill you offer to teach them</label>
+            <select id="detail-skill-offered" class="form-select">
+              <!-- Filled via JS -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-detail-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div><strong>SkillSwap Campus</strong> &mdash; Peer learning made simple.</div>
+      <div>
+        <a href="dashboard.html">Dashboard</a> &bull;
+        <a href="find-students.html">Find Students</a> &bull;
+        <a href="requests.html">Requests</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/student-details.js"></script>
+</body>
+</html>

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - SkillSwap Campus</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .dashboard-page {
+      --dashboard-sidebar-width: 214px;
+      --dashboard-gap: 18px;
+      background: var(--color-bg);
+    }
+
+    .dashboard-page .site-header {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--dashboard-sidebar-width);
+      border-right: 1px solid var(--color-border);
+      border-bottom: 0;
+      z-index: 100;
+    }
+
+    .dashboard-page .navbar {
+      align-items: stretch;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px 14px;
+    }
+
+    .dashboard-page .nav-brand {
+      padding: 0 8px 22px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .dashboard-page .nav-collapse {
+      display: flex;
+      flex: 1;
+      align-items: stretch;
+      width: 100%;
+      padding-top: 18px;
+    }
+
+    .dashboard-page .nav-menu {
+      align-items: stretch;
+      flex-direction: column;
+      width: 100%;
+      gap: 4px;
+    }
+
+    .dashboard-page .nav-item,
+    .dashboard-page .nav-link {
+      width: 100%;
+    }
+
+    .dashboard-page .nav-link {
+      padding: 10px 12px;
+    }
+
+    .dashboard-page .nav-link.active {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .dashboard-page .user-info-item {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin: auto 0 0;
+      padding: 16px 0 0;
+      border-top: 1px solid var(--color-border);
+      border-left: 0;
+    }
+
+    .dashboard-page .user-greeting {
+      display: none;
+    }
+
+    .dashboard-page .user-info-item .btn-logout {
+      width: 100%;
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .dashboard-page .sidebar-settings-item {
+      margin-top: auto;
+      padding-top: 12px;
+    }
+
+    .dashboard-page .sidebar-section-label {
+      display: block;
+      padding: 0 12px 6px;
+      color: var(--color-text-light);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-page .nav-toggle {
+      display: none;
+    }
+
+    .dashboard-page .main-content {
+      width: calc(100% - var(--dashboard-sidebar-width));
+      margin-left: var(--dashboard-sidebar-width);
+      padding: 0 28px 36px;
+    }
+
+    .dashboard-page .dashboard-container {
+      max-width: 1320px;
+      padding: 0;
+    }
+
+    .dashboard-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 64px;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 13px;
+    }
+
+    .dashboard-topbar-context {
+      color: var(--color-text-main);
+      font-weight: 600;
+    }
+
+    .dashboard-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dashboard-topbar-actions .user-greeting {
+      display: flex;
+      color: var(--color-text-main);
+      font-weight: 600;
+    }
+
+    .dashboard-topbar-actions .theme-toggle {
+      padding: 6px 8px;
+    }
+
+    .dashboard-profile-menu {
+      position: relative;
+    }
+
+    .dashboard-profile-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 4px 8px 4px 5px;
+      color: var(--color-text-main);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+    }
+
+    .dashboard-profile-trigger:hover,
+    .dashboard-profile-trigger[aria-expanded="true"] {
+      background: var(--color-surface-hover);
+      border-color: var(--color-border);
+    }
+
+    .dashboard-profile-trigger:focus-visible,
+    .dashboard-profile-menu a:focus-visible,
+    .dashboard-profile-menu button:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .dashboard-profile-trigger .user-avatar-small {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .dashboard-profile-arrow {
+      color: var(--color-text-muted);
+      font-size: 12px;
+    }
+
+    .dashboard-profile-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 300;
+      display: none;
+      width: 236px;
+      padding: 8px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+    }
+
+    .dashboard-profile-dropdown.open {
+      display: block;
+    }
+
+    .dashboard-profile-summary {
+      padding: 8px 9px 10px;
+    }
+
+    .dashboard-profile-summary strong,
+    .dashboard-profile-summary small {
+      display: block;
+    }
+
+    .dashboard-profile-summary strong {
+      color: var(--color-text-main);
+      font-size: 14px;
+    }
+
+    .dashboard-profile-summary small {
+      overflow: hidden;
+      margin-top: 2px;
+      color: var(--color-text-muted);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dashboard-profile-divider {
+      height: 1px;
+      margin: 4px 0;
+      background: var(--color-border);
+    }
+
+    .dashboard-profile-dropdown a,
+    .dashboard-profile-dropdown .dashboard-menu-action {
+      display: block;
+      width: 100%;
+      padding: 8px 9px;
+      color: var(--color-text-main);
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      text-align: left;
+      text-decoration: none;
+    }
+
+    .dashboard-profile-dropdown a:hover,
+    .dashboard-profile-dropdown .dashboard-menu-action:hover {
+      color: var(--color-primary);
+      background: var(--color-surface-hover);
+    }
+
+    .dashboard-profile-dropdown .theme-toggle {
+      color: var(--color-text-main);
+    }
+
+    .dashboard-profile-dropdown .dashboard-menu-logout:hover {
+      color: var(--color-danger);
+    }
+
+    .dashboard-page .page-header {
+      margin: 28px 0 22px;
+    }
+
+    .dashboard-page .page-title {
+      font-size: 32px;
+      letter-spacing: -0.4px;
+    }
+
+    .dashboard-page .quick-actions-bar {
+      margin-bottom: 0;
+    }
+
+    .dashboard-overview {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: var(--dashboard-gap);
+      align-items: stretch;
+    }
+
+    .exchange-overview-card,
+    .dashboard-page .profile-summary-box {
+      padding: 20px;
+    }
+
+    .section-heading-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .section-heading-row-compact {
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .section-kicker {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--color-primary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-section-title {
+      color: var(--color-text-main);
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .match-summary {
+      display: grid;
+      min-width: 136px;
+      justify-items: end;
+      gap: 2px;
+      color: var(--color-text-muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .match-summary strong {
+      color: var(--color-primary);
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    .match-summary .btn {
+      margin-top: 8px;
+    }
+
+    .exchange-skill-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      margin-top: 22px;
+    }
+
+    .exchange-skill-divider {
+      align-self: stretch;
+      background: var(--color-border);
+    }
+
+    .exchange-label {
+      margin-bottom: 8px;
+      color: var(--color-text-muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .exchange-skill-teach .exchange-label {
+      color: var(--color-success-text);
+    }
+
+    .exchange-skill-learn .exchange-label {
+      color: var(--color-primary);
+    }
+
+    .profile-summary-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .dashboard-page .profile-avatar-large {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0;
+      font-size: 20px;
+      border-radius: 50%;
+    }
+
+    .dashboard-page .profile-name {
+      margin-bottom: 2px;
+      font-size: 17px;
+    }
+
+    .dashboard-page .profile-dept {
+      margin-bottom: 0;
+      font-size: 12px;
+    }
+
+    .dashboard-page #summary-bio {
+      display: -webkit-box;
+      overflow: hidden;
+      min-height: 58px;
+      margin-bottom: 16px !important;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+
+    .dashboard-section-block {
+      margin-top: 30px;
+    }
+
+    .potential-match-grid,
+    .dashboard-page .recommended-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .potential-match-card,
+    .dashboard-page .recommended-student {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
+      padding: 16px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .potential-match-card {
+      border-color: var(--color-primary-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .potential-match-card:hover,
+    .dashboard-page .recommended-student:hover {
+      border-color: var(--color-primary-border);
+    }
+
+    .potential-match-card .student-card-header {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .potential-match-card .student-avatar,
+    .dashboard-page .recommended-student .student-avatar {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+    }
+
+    .match-reason {
+      display: grid;
+      width: 100%;
+      gap: 5px;
+      margin: 0 0 14px;
+      padding: 9px 10px;
+      background: var(--color-primary-light);
+      border-left: 3px solid var(--color-primary);
+      color: var(--color-text-main);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .match-reason strong {
+      color: var(--color-primary);
+    }
+
+    .potential-match-card .student-card-actions,
+    .dashboard-page .recommended-actions {
+      display: flex;
+      width: 100%;
+      gap: 7px;
+      margin-top: auto;
+      padding-top: 12px;
+    }
+
+    .potential-match-card .student-card-actions .btn,
+    .dashboard-page .recommended-actions .btn {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 8px;
+      font-size: 12px;
+    }
+
+    .dashboard-page .recommended-student strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+
+    .dashboard-page .recommended-student small {
+      display: block;
+      color: var(--color-text-muted);
+      font-size: 12px;
+    }
+
+    .dashboard-page .recommended-label {
+      display: block;
+      margin-top: 9px;
+      color: var(--color-text-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-page .recommended-skills {
+      display: block;
+      min-height: 28px;
+      color: var(--color-text-main);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .dashboard-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--dashboard-gap);
+      margin-top: 30px;
+    }
+
+    .dashboard-status-card {
+      min-width: 0;
+      padding: 18px;
+    }
+
+    .dashboard-status-card .card-header {
+      margin-bottom: 12px;
+    }
+
+    .dashboard-status-card .request-item {
+      padding: 11px 0;
+      border-width: 0 0 1px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .dashboard-status-card .request-item:last-child {
+      border-bottom: 0;
+    }
+
+    .dashboard-page .site-footer {
+      width: calc(100% - var(--dashboard-sidebar-width));
+      margin-top: 28px;
+      margin-left: var(--dashboard-sidebar-width);
+    }
+
+    @media (max-width: 1050px) {
+      .dashboard-overview {
+        grid-template-columns: minmax(0, 1fr) 240px;
+      }
+
+      .potential-match-grid,
+      .dashboard-page .recommended-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dashboard-page {
+        --dashboard-sidebar-width: 0px;
+      }
+
+      .dashboard-page .site-header {
+        position: sticky;
+        width: 100%;
+        height: var(--header-height);
+        border-right: 0;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .dashboard-page .navbar {
+        align-items: center;
+        flex-direction: row;
+        height: var(--header-height);
+        padding: 0 20px;
+      }
+
+      .dashboard-page .nav-brand {
+        padding: 0;
+        border-bottom: 0;
+      }
+
+      .dashboard-page .nav-toggle {
+        display: flex;
+      }
+
+      .dashboard-page .nav-collapse {
+        display: none;
+        position: absolute;
+        top: var(--header-height);
+        left: 0;
+        right: 0;
+        width: auto;
+        padding: 16px;
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: var(--shadow-md);
+      }
+
+      .dashboard-page .nav-collapse.open {
+        display: block;
+      }
+
+      .dashboard-page .user-greeting {
+        display: flex;
+      }
+
+      .dashboard-page .main-content,
+      .dashboard-page .site-footer {
+        width: 100%;
+        margin-left: 0;
+      }
+
+      .dashboard-page .main-content {
+        padding: 0 16px 28px;
+      }
+
+      .dashboard-page .page-header {
+        margin-top: 20px;
+      }
+
+      .dashboard-page .page-header-row,
+      .section-heading-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .dashboard-page .quick-actions-bar {
+        width: 100%;
+      }
+
+      .dashboard-page .quick-actions-bar .btn {
+        flex: 1;
+      }
+
+      .dashboard-profile-dropdown {
+        right: 0;
+        width: min(236px, calc(100vw - 32px));
+      }
+
+      .dashboard-overview,
+      .potential-match-grid,
+      .dashboard-page .recommended-list,
+      .dashboard-status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .match-summary {
+        justify-items: start;
+        text-align: left;
+      }
+
+      .exchange-skill-columns {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .exchange-skill-divider {
+        width: 100%;
+        height: 1px;
+      }
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+  <header class="site-header">
+    <div id="navbar-container"></div>
+  </header>
+
+  <main class="main-content">
+    <div class="container dashboard-container">
+      <div class="dashboard-topbar">
+        <span class="dashboard-topbar-context"></span>
+        <div class="dashboard-topbar-actions" id="dashboard-topbar-actions"></div>
+      </div>
+
+      <div class="page-header">
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title" id="welcome-title">Welcome back!</h1>
+            <p class="page-description">Your skill exchange overview</p>
+          </div>
+          <div class="quick-actions-bar">
+            <a href="find-students.html" class="btn btn-primary">Find Students</a>
+            <button type="button" class="btn btn-secondary" id="btn-open-add-skill">+ Add Skill</button>
+            <a href="requests.html" class="btn btn-secondary">View Requests</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-overview">
+        <section class="card exchange-overview-card">
+          <div class="section-heading-row">
+            <div>
+              <span class="section-kicker">Your Skills</span>
+              <h2 class="dashboard-section-title">Ready for your next exchange?</h2>
+            </div>
+            <div class="match-summary">
+              <strong id="dashboard-match-count">0</strong>
+              <span>potential matches</span>
+              <a href="find-students.html" class="btn btn-primary btn-sm">Find Matches</a>
+            </div>
+          </div>
+          <div class="exchange-skill-columns">
+            <div class="exchange-skill-group exchange-skill-teach">
+              <div class="exchange-label">Can Teach</div>
+              <div class="skill-tag-group" id="dashboard-teach-skills"></div>
+            </div>
+            <div class="exchange-skill-divider" aria-hidden="true"></div>
+            <div class="exchange-skill-group exchange-skill-learn">
+              <div class="exchange-label">Want to Learn</div>
+              <div class="skill-tag-group" id="dashboard-learn-skills"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card profile-summary-box">
+          <div class="profile-summary-heading">
+            <div class="profile-avatar-large" id="summary-avatar">S</div>
+            <div>
+              <h2 class="profile-name" id="summary-name">Student Name</h2>
+              <div class="profile-dept" id="summary-dept">Department &bull; Year</div>
+            </div>
+          </div>
+          <span id="summary-email" hidden></span>
+          <p class="form-help" id="summary-bio"></p>
+          <a href="profile.html" class="btn btn-secondary btn-sm btn-block">View Profile</a>
+        </aside>
+      </div>
+
+      <section class="dashboard-section-block">
+        <div class="section-heading-row section-heading-row-compact">
+          <div>
+            <span class="section-kicker">Exchange opportunities</span>
+            <h2 class="dashboard-section-title">Potential Skill Matches</h2>
+          </div>
+          <a href="find-students.html" class="btn-text btn-sm">Browse students</a>
+        </div>
+        <div class="potential-match-grid" id="dashboard-potential-matches"></div>
+      </section>
+
+      <section class="dashboard-section-block">
+        <div class="section-heading-row section-heading-row-compact">
+          <div>
+            <span class="section-kicker">More peers to explore</span>
+            <h2 class="dashboard-section-title">Recommended Students</h2>
+          </div>
+          <a href="find-students.html" class="btn-text btn-sm">Browse all</a>
+        </div>
+        <div class="recommended-list" id="dashboard-recommended-students"></div>
+      </section>
+
+      <div class="dashboard-status-grid">
+        <section class="card dashboard-status-card">
+          <div class="card-header">
+            <h3 class="card-title">Pending Requests <span id="pending-count-badge" class="badge badge-neutral">0</span></h3>
+            <a href="requests.html" class="btn-text btn-sm">View all</a>
+          </div>
+          <div class="requests-list" id="dashboard-pending-requests"></div>
+        </section>
+
+        <section class="card dashboard-status-card">
+          <div class="card-header">
+            <h3 class="card-title">Accepted Connections <span id="connections-count-badge" class="badge badge-neutral">0</span></h3>
+          </div>
+          <div class="requests-list" id="dashboard-connections"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="add-skill-modal" role="dialog" aria-modal="true" aria-labelledby="modal-skill-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-skill-title">Add a Skill</h3>
+        <button type="button" class="modal-close" id="btn-close-modal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="add-skill-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Skill Category</label>
+            <div style="display: flex; gap: 20px; margin-top: 6px;">
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                <input type="radio" name="skillType" value="teach" checked>
+                I can teach this
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                <input type="radio" name="skillType" value="learn">
+                I want to learn this
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="skill-selection" class="form-label">Select Skill</label>
+            <select id="skill-selection" class="form-select" required></select>
+          </div>
+          <div class="form-group" id="custom-skill-group" style="display: none;">
+            <label for="custom-skill-name" class="form-label">Custom Skill Name</label>
+            <input type="text" id="custom-skill-name" class="form-input" placeholder="e.g. Flutter, Git, Figma">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add to Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div><strong>SkillSwap Campus</strong> &mdash; Peer learning made simple.</div>
+      <div>
+        <a href="dashboard.html">Dashboard</a> &bull;
+        <a href="find-students.html">Find Students</a> &bull;
+        <a href="requests.html">Requests</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof getStudents !== "function") return;
+      const originalRenderNavbar = window.renderNavbar;
+
+      function setupDashboardShell() {
+        const menu = document.querySelector(".dashboard-page .nav-menu");
+        const userInfo = menu?.querySelector(".user-info-item");
+        const themeButton = document.getElementById("btn-theme-toggle");
+        const topbarActions = document.getElementById("dashboard-topbar-actions");
+
+        if (!menu || !userInfo) return;
+
+        if (topbarActions && !topbarActions.querySelector(".dashboard-profile-menu")) {
+          const currentUser = getCurrentUser();
+          if (!currentUser) return;
+
+          const profileMenu = document.createElement("div");
+          profileMenu.className = "dashboard-profile-menu";
+          profileMenu.innerHTML = `
+            <button type="button" class="dashboard-profile-trigger" id="dashboard-user-trigger" aria-haspopup="true" aria-expanded="false">
+              <span class="user-avatar-small">${escapeHtml(currentUser.name.charAt(0))}</span>
+              <span>${escapeHtml(currentUser.name)}</span>
+              <span class="dashboard-profile-arrow" aria-hidden="true">&#9662;</span>
+            </button>
+            <div class="dashboard-profile-dropdown" id="dashboard-user-dropdown" role="menu" aria-labelledby="dashboard-user-trigger">
+              <div class="dashboard-profile-summary">
+                <strong>${escapeHtml(currentUser.name)}</strong>
+                <small>${escapeHtml(currentUser.email)}</small>
+              </div>
+              <div class="dashboard-profile-divider" role="separator"></div>
+              <a href="profile.html" role="menuitem">My Profile</a>
+              <span class="dashboard-menu-action" role="menuitem">Settings</span>
+              <div class="dashboard-profile-divider" role="separator"></div>
+              <span id="dashboard-menu-theme-slot"></span>
+              <button type="button" class="dashboard-menu-action btn-logout dashboard-menu-logout" role="menuitem">Logout</button>
+            </div>
+          `;
+
+          topbarActions.appendChild(profileMenu);
+          if (themeButton) {
+            themeButton.classList.add("dashboard-menu-action");
+            themeButton.setAttribute("role", "menuitem");
+            profileMenu.querySelector("#dashboard-menu-theme-slot")?.replaceWith(themeButton);
+          }
+        }
+
+        if (!menu.querySelector(".sidebar-settings-item")) {
+          const settingsItem = document.createElement("li");
+          settingsItem.className = "nav-item sidebar-settings-item";
+          settingsItem.innerHTML = '<span class="sidebar-section-label">Settings</span>';
+          menu.insertBefore(settingsItem, userInfo);
+        }
+      }
+
+      window.renderNavbar = () => {
+        originalRenderNavbar();
+        setupDashboardShell();
+      };
+
+      if (!window.dashboardProfileMenuEventsReady) {
+        window.dashboardProfileMenuEventsReady = true;
+
+        document.addEventListener("click", (event) => {
+          const trigger = event.target.closest("#dashboard-user-trigger");
+          const profileMenu = document.querySelector(".dashboard-profile-menu");
+          const dropdown = document.getElementById("dashboard-user-dropdown");
+          if (!profileMenu || !dropdown) return;
+
+          if (trigger) {
+            const isOpen = trigger.getAttribute("aria-expanded") === "true";
+            trigger.setAttribute("aria-expanded", String(!isOpen));
+            dropdown.classList.toggle("open", !isOpen);
+            return;
+          }
+
+          if (!event.target.closest(".dashboard-profile-menu")) {
+            dropdown.classList.remove("open");
+            document.getElementById("dashboard-user-trigger")?.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape") return;
+          const dropdown = document.getElementById("dashboard-user-dropdown");
+          const trigger = document.getElementById("dashboard-user-trigger");
+          if (!dropdown?.classList.contains("open")) return;
+          dropdown.classList.remove("open");
+          trigger?.setAttribute("aria-expanded", "false");
+          trigger?.focus();
+        });
+      }
+
+      function getSkillMatchData(user) {
+        return getStudents()
+          .filter((student) => student.id !== user.id && student.role !== "admin")
+          .map((student) => {
+            const theyCanTeach = student.skillsTeach.filter((skill) =>
+              user.skillsLearn.some((wanted) => wanted.toLowerCase() === skill.toLowerCase())
+            );
+            const youCanTeach = user.skillsTeach.filter((skill) =>
+              student.skillsLearn.some((wanted) => wanted.toLowerCase() === skill.toLowerCase())
+            );
+            return { student, theyCanTeach, youCanTeach };
+          })
+          .filter((match) => match.theyCanTeach.length || match.youCanTeach.length)
+          .sort((first, second) =>
+            (second.theyCanTeach.length + second.youCanTeach.length) -
+            (first.theyCanTeach.length + first.youCanTeach.length)
+          );
+      }
+
+      function requestIsPending(user, student) {
+        return getRequests().some((request) =>
+          request.senderId === user.id && request.receiverId === student.id && request.status === "Pending"
+        );
+      }
+
+      function renderPotentialMatches(user, matches) {
+        const container = document.getElementById("dashboard-potential-matches");
+        const count = document.getElementById("dashboard-match-count");
+        if (!container) return;
+
+        if (count) count.textContent = matches.length;
+        if (!matches.length) {
+          container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
+              <div class="empty-state-title">No skill matches found</div>
+              <p class="empty-state-desc">Add more teaching or learning skills to discover compatible students.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = matches.slice(0, 3).map(({ student, theyCanTeach, youCanTeach }) => {
+          const pending = requestIsPending(user, student);
+          return `
+            <article class="potential-match-card">
+              <div class="student-card-header">
+                <div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div>
+                <div class="student-header-info">
+                  <h3 class="student-card-name">${escapeHtml(student.name)}</h3>
+                  <div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(student.year)}</div>
+                </div>
+              </div>
+              <div class="match-reason">
+                ${youCanTeach.length ? `<span>You can teach: <strong>${escapeHtml(youCanTeach.join(", "))}</strong></span>` : ""}
+                ${theyCanTeach.length ? `<span>They can teach: <strong>${escapeHtml(theyCanTeach.join(", "))}</strong></span>` : ""}
+              </div>
+              <div class="student-card-actions">
+                <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openRequestModalForStudent(${student.id})" ${pending ? "disabled" : ""}>${pending ? "Request Sent" : "Send Request"}</button>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      window.renderRecommendedStudents = (user) => {
+        const container = document.getElementById("dashboard-recommended-students");
+        if (!container) return;
+
+        const matches = getSkillMatchData(user);
+        renderPotentialMatches(user, matches);
+        const matchIds = new Set(matches.map((match) => match.student.id));
+        const students = getStudents()
+          .filter((student) => student.id !== user.id && student.role !== "admin" && !matchIds.has(student.id))
+          .slice(0, 3);
+
+        container.innerHTML = students.length
+          ? students.map((student) => {
+            const pending = requestIsPending(user, student);
+            return `
+              <article class="recommended-student">
+                <div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div>
+                <strong>${escapeHtml(student.name)}</strong>
+                <small>${escapeHtml(student.department)} &bull; ${escapeHtml(student.year)}</small>
+                <span class="recommended-label">Can teach</span>
+                <span class="recommended-skills">${escapeHtml(student.skillsTeach.join(", ") || "None listed")}</span>
+                <span class="recommended-label">Wants to learn</span>
+                <span class="recommended-skills">${escapeHtml(student.skillsLearn.join(", ") || "None listed")}</span>
+                <span class="recommended-actions">
+                  <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="openRequestModalForStudent(${student.id})" ${pending ? "disabled" : ""}>${pending ? "Request Sent" : "Send Request"}</button>
+                </span>
+              </article>
+            `;
+          }).join("")
+          : `
+            <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
+              <div class="empty-state-title">No other students available</div>
+              <p class="empty-state-desc">Visit Find Students to explore the campus directory.</p>
+            </div>
+          `;
+      };
+
+      setupDashboardShell();
+      const currentUser = getCurrentUser();
+      if (currentUser) window.renderRecommendedStudents(currentUser);
+    });
+  </script>
+</body>
+</html>
