@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillSwap Campus - College Student Skill-Exchange Platform</title>
-  <meta name="description" content="SkillSwap Campus is a peer-to-peer platform where college students exchange technical and creative skills without money.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Ctext x='16' y='22' font-family='Arial,sans-serif' font-size='15' font-weight='700' text-anchor='middle' fill='white'%3ESS%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,14 +18,43 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-        <span class="hero-tag">Peer-to-Peer Learning</span>
-        <h1 class="hero-title">Learn together. Share skills. Grow together.</h1>
-        <p class="hero-description">
-          A dedicated campus skill-exchange platform where students trade technical and creative skills without money. Teach what you excel at, learn what you need.
-        </p>
-        <div class="hero-actions">
-          <a href="find-students.html" class="btn btn-primary">Find a Skill</a>
-          <a href="register.html" class="btn btn-secondary">Share Your Skill</a>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="hero-tag">Peer-to-Peer Learning</span>
+            <h1 class="hero-title">Learn together. Share skills. Grow together.</h1>
+            <p class="hero-description">
+              A dedicated campus skill-exchange platform where students trade technical and creative skills without money. Teach what you excel at, learn what you need.
+            </p>
+            <div class="hero-actions">
+              <a href="find-students.html" class="btn btn-primary">Find a Skill</a>
+              <a href="register.html" class="btn btn-secondary">Share Your Skill</a>
+            </div>
+          </div>
+
+          <!-- Illustrative swap preview (sample data, not live) -->
+          <div class="hero-visual" aria-hidden="true">
+            <div class="swap-mock">
+              <div class="swap-mock-label">Sample skill swap</div>
+              <div class="swap-mock-person">
+                <div class="swap-mock-avatar" style="background:#2563eb">A</div>
+                <div>
+                  <strong>Aarav</strong>
+                  <small>Computer Science</small>
+                  <span class="skill-tag skill-tag-teach">Teaches Python</span>
+                </div>
+              </div>
+              <div class="swap-mock-arrows">&#8645; <span>swap</span></div>
+              <div class="swap-mock-person">
+                <div class="swap-mock-avatar" style="background:#db2777">M</div>
+                <div>
+                  <strong>Meera</strong>
+                  <small>Design</small>
+                  <span class="skill-tag skill-tag-learn">Teaches Figma</span>
+                </div>
+              </div>
+              <span class="swap-mock-badge">2 skill matches</span>
+            </div>
+          </div>
         </div>
 
         <!-- Platform statistics from current local data -->
