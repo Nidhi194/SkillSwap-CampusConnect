@@ -39,6 +39,14 @@ async function handleRemoveSkill(type, skillId) {
   catch (error) { showToast(error.message, "error"); }
 }
 
+// Backend stores department as free text, so keep any value the dropdown does not list.
+function setSelectValue(id, value) {
+  const select = document.getElementById(id);
+  if (!select) return;
+  if (value && ![...select.options].some((option) => option.value === value)) select.add(new Option(value, value));
+  select.value = value || "";
+}
+
 function initEditProfileModal(user) {
   const modal = document.getElementById("edit-profile-modal");
   const form = document.getElementById("edit-profile-form");
@@ -46,8 +54,8 @@ function initEditProfileModal(user) {
   const close = () => modal.classList.remove("active");
   document.getElementById("btn-open-edit-profile")?.addEventListener("click", () => {
     document.getElementById("edit-name").value = user.name;
-    document.getElementById("edit-department").value = user.department;
-    document.getElementById("edit-year").value = formatProfileYear(user.year);
+    setSelectValue("edit-department", user.department);
+    setSelectValue("edit-year", formatProfileYear(user.year));
     document.getElementById("edit-bio").value = user.bio || "";
     modal.classList.add("active");
   });
@@ -56,8 +64,10 @@ function initEditProfileModal(user) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
+      const name = document.getElementById("edit-name").value.trim();
+      if (name.length < 2) throw new Error("Name must be at least 2 characters.");
       const updated = await updateUser(user.id, {
-        name: document.getElementById("edit-name").value.trim(),
+        name,
         email: user.email,
         department: document.getElementById("edit-department").value,
         year: Number(document.getElementById("edit-year").value.replace(/\D/g, "")),
@@ -73,20 +83,23 @@ function initAddSkillModal(user) {
   const form = document.getElementById("add-skill-form");
   const select = document.getElementById("skill-selection");
   if (!modal || !form) return;
-  getSkills().then((skills) => { select.innerHTML = `<option value="">-- Choose from available skills --</option>${skills.map((skill) => `<option value="${skill.id}">${escapeHtml(skill.skillName)}</option>`).join("")}<option value="__custom__">+ Enter a new skill</option>`; }).catch((error) => showToast(error.message, "error"));
+  const loadOptions = () => populateSkillSelect(select).catch((error) => showToast(error.message, "error"));
+  loadOptions();
+  select.addEventListener("change", () => { document.getElementById("custom-skill-group").style.display = select.value === "__custom__" ? "block" : "none"; });
   const open = (type) => { document.querySelector(`input[name="skillType"][value="${type}"]`).checked = true; modal.classList.add("active"); };
   document.getElementById("btn-add-teach-skill")?.addEventListener("click", () => open("teach"));
   document.getElementById("btn-add-learn-skill")?.addEventListener("click", () => open("learn"));
-  const close = () => { modal.classList.remove("active"); form.reset(); };
+  const close = () => { modal.classList.remove("active"); form.reset(); resetCustomSkillGroup(); };
   document.getElementById("btn-close-skill-modal")?.addEventListener("click", close); document.getElementById("btn-cancel-skill-modal")?.addEventListener("click", close);
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
       const type = document.querySelector('input[name="skillType"]:checked').value;
+      const wasCustom = select.value === "__custom__";
       let skillId = select.value;
-      if (skillId === "__custom__") skillId = await resolveCustomSkillId(document.getElementById("custom-skill-name").value);
+      if (wasCustom) skillId = await resolveCustomSkillId(document.getElementById("custom-skill-name").value);
       if (!skillId) throw new Error("Please choose a skill.");
-      await assignSkill(user.id, Number(skillId), type); close(); await renderProfile(user); showToast("Skill added.", "success");
+      await assignSkill(user.id, Number(skillId), type); close(); if (wasCustom) loadOptions(); await renderProfile(user); showToast("Skill added.", "success");
     } catch (error) { showToast(error.message, "error"); }
   });
 }

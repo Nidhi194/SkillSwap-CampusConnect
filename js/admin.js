@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = getCurrentUser();
   if (!user || !isAdminUser(user)) { window.location.href = user ? "dashboard.html" : "login.html"; return; }
   initAdminTableActions();
-  try { await renderAdminDashboard(); initAddSkillCatalogForm(); } catch (error) { showToast(error.message, "error"); }
+  initAddSkillCatalogForm();
+  try { await renderAdminDashboard(); } catch (error) { showToast(error.message, "error"); }
 });
 
 async function renderAdminDashboard() {
@@ -18,10 +19,16 @@ async function renderAdminDashboard() {
   renderSkillsTable(skills, assignments);
 }
 
+function formatAdminYear(year) {
+  const value = Number(year);
+  if (Number.isNaN(value)) return year;
+  return `${value}${value === 1 ? "st" : value === 2 ? "nd" : value === 3 ? "rd" : "th"} Year`;
+}
+
 function renderStudentTable(students) {
   const tbody = document.getElementById("admin-students-tbody");
   if (!students.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted); padding: 24px;">No students currently registered.</td></tr>`; return; }
-  tbody.innerHTML = students.map((student) => `<tr><td><strong>${escapeHtml(student.name)}</strong><div style="font-size: 12px; color: var(--color-text-muted);">${escapeHtml(student.email)}</div></td><td>${escapeHtml(student.department)}</td><td>${escapeHtml(student.year)}</td><td><span class="badge badge-primary">Student</span></td><td><button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-student" data-id="${Number(student.id)}" data-name="${escapeHtml(student.name)}">Remove</button></td></tr>`).join("");
+  tbody.innerHTML = students.map((student) => `<tr><td><strong>${escapeHtml(student.name)}</strong><div style="font-size: 12px; color: var(--color-text-muted);">${escapeHtml(student.email)}</div></td><td>${escapeHtml(student.department)}</td><td>${escapeHtml(formatAdminYear(student.year))}</td><td><span class="badge badge-primary">Student</span></td><td><button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-student" data-id="${Number(student.id)}" data-name="${escapeHtml(student.name)}">Remove</button></td></tr>`).join("");
 }
 
 function renderSkillsTable(skills, assignments) {

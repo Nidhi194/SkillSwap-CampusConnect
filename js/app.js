@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderNavbar();
   highlightActiveNavLink();
   initLogoutHandlers();
+  initModalDismissHandlers();
 });
 
 const THEME_KEY = "skillswap_theme";
@@ -98,6 +99,9 @@ function renderNavbar() {
     navLinksHtml = `
       <ul class="nav-menu">
         ${navigationLinks}
+        <li class="nav-item">
+          <button type="button" id="btn-theme-toggle" class="btn-text theme-toggle" aria-pressed="false">Dark mode</button>
+        </li>
         <li class="nav-item">
           <button type="button" id="btn-logout" class="btn-text btn-sm btn-logout" title="Log out of session">Logout</button>
         </li>
@@ -265,7 +269,7 @@ function showToast(message, type = "info") {
 
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  toast.setAttribute("role", "status");
+  toast.setAttribute("role", type === "error" ? "alert" : "status");
   toast.innerHTML = `
     <span class="toast-message">${escapeHtml(message)}</span>
     <button class="toast-close" type="button" aria-label="Close message">&times;</button>
@@ -302,6 +306,31 @@ function escapeHtml(str) {
 }
 
 /**
+ * Close the top-most open modal with Escape or a click on the dark backdrop.
+ * Reuses each modal's own close button so page-specific reset logic still runs.
+ */
+function initModalDismissHandlers() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const openModals = document.querySelectorAll(".modal-overlay.active");
+    openModals[openModals.length - 1]?.querySelector(".modal-close")?.click();
+  });
+
+  document.addEventListener("mousedown", (event) => {
+    const overlay = event.target;
+    if (overlay.classList?.contains("modal-overlay") && overlay.classList.contains("active")) {
+      overlay.querySelector(".modal-close")?.click();
+    }
+  });
+}
+
+/** Local calendar date as YYYY-MM-DD (toISOString shifts the day for UTC+ zones such as India). */
+function localDateString(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
  * Display successful connection popup with mini scheduling UI
  */
 function showConnectionSuccessModal({ peerName, onSchedule }) {
@@ -310,7 +339,7 @@ function showConnectionSuccessModal({ peerName, onSchedule }) {
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split("T")[0];
+  const tomorrowStr = localDateString(tomorrow);
 
   const modalOverlay = document.createElement("div");
   modalOverlay.id = "connection-success-modal";
@@ -340,7 +369,7 @@ function showConnectionSuccessModal({ peerName, onSchedule }) {
           
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="meet-date" class="form-label">Recommended date</label>
-            <input type="date" id="meet-date" class="form-input" value="${tomorrowStr}" required min="${new Date().toISOString().split("T")[0]}">
+            <input type="date" id="meet-date" class="form-input" value="${tomorrowStr}" required min="${localDateString(new Date())}">
           </div>
 
           <div class="form-group" style="margin-bottom: 12px;">
@@ -393,7 +422,7 @@ function showConnectionSuccessModal({ peerName, onSchedule }) {
     const platform = modalOverlay.querySelector("#meet-platform").value;
 
     close();
-    showToast(`Meet scheduled with ${escapeHtml(peerName || "peer")} on ${date} at ${time} via ${platform}!`, "success");
+    showToast(`Meet scheduled with ${peerName || "peer"} on ${date} at ${time} via ${platform}!`, "success");
     if (typeof onSchedule === "function") {
       onSchedule({ date, time, platform });
     }
@@ -411,4 +440,18 @@ async function resolveCustomSkillId(name) {
   const existing = (await getSkills()).find((skill) => skill.skillName.toLowerCase() === trimmed.toLowerCase());
   if (existing) return existing.id;
   return (await createSkill(trimmed)).id;
+}
+
+/**
+ * Fill a skill <select> from the catalog, plus a "new skill" entry.
+ */
+async function populateSkillSelect(select) {
+  if (!select) return;
+  const skills = await getSkills();
+  select.innerHTML = `<option value="">-- Choose from available skills --</option>${skills.map((skill) => `<option value="${skill.id}">${escapeHtml(skill.skillName)}</option>`).join("")}<option value="__custom__">+ Enter a new skill</option>`;
+}
+
+function resetCustomSkillGroup() {
+  const group = document.getElementById("custom-skill-group");
+  if (group) group.style.display = "none";
 }

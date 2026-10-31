@@ -14,7 +14,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("filter-skill")?.addEventListener("change", () => renderStudentDirectory());
     document.getElementById("filter-department")?.addEventListener("change", () => renderStudentDirectory());
     document.getElementById("btn-clear-filters")?.addEventListener("click", () => { document.getElementById("search-input").value = ""; document.getElementById("filter-skill").value = ""; document.getElementById("filter-department").value = ""; renderStudentDirectory(); });
-  } catch (error) { showToast(error.message, "error"); }
+  } catch (error) {
+    const count = document.getElementById("results-count");
+    if (count) count.textContent = "Could not load students.";
+    showToast(error.message, "error");
+  }
 });
 
 // One fetch round-trip (4 requests total). Search and filters then run client-side on this cache.
@@ -109,7 +113,8 @@ async function openRequestModalForStudent(studentId) {
   if (!user) return;
   selectedTargetStudent = directoryStudents.find((student) => student.id === Number(studentId));
   if (!selectedTargetStudent) return;
-  const ownSkills = await getUserSkills(user.id);
+  let ownSkills;
+  try { ownSkills = await getUserSkills(user.id); } catch (error) { showToast(error.message, "error"); return; }
   document.getElementById("modal-request-receiver-name").textContent = selectedTargetStudent.name;
 
   const targetTeach = selectedTargetStudent.skills.filter((skill) => skill.skillType === "TEACH");
@@ -136,20 +141,27 @@ function initSendRequestModal() {
     event.preventDefault();
     const user = requireAuth();
     if (!user || !selectedTargetStudent) return;
+    const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+    // close() clears selectedTargetStudent, so keep our own reference.
+    const target = selectedTargetStudent;
     try {
       const wantedVal = document.getElementById("request-skill-wanted").value;
       const offeredVal = document.getElementById("request-skill-offered").value;
       await createSwapRequest({
         senderId: user.id,
-        receiverId: selectedTargetStudent.id,
+        receiverId: target.id,
         skillId: wantedVal ? Number(wantedVal) : null,
         offeredSkillId: offeredVal ? Number(offeredVal) : null
       });
       close();
-      showToast(`Request sent to ${selectedTargetStudent.name}!`, "success");
+      showToast(`Request sent to ${target.name}!`, "success");
       await refreshDirectoryRequests();
     } catch (error) {
       showToast(error.message, "error");
+    } finally {
+      submitButton.disabled = false;
     }
   });
 }

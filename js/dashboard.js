@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = requireAuth();
   if (!currentUser) return;
+  renderDashboardTopbar(currentUser);
   try {
     await renderDashboard(currentUser);
     initAddSkillModal(currentUser);
@@ -30,7 +31,7 @@ async function renderDashboard(user) {
   document.getElementById("summary-bio").textContent = user.bio || "No bio added yet.";
   renderSkillsList(userSkills.filter((skill) => skill.skillType === "TEACH"), "dashboard-teach-skills", "skill-tag-teach", "No teaching skills added yet.");
   renderSkillsList(userSkills.filter((skill) => skill.skillType === "LEARN"), "dashboard-learn-skills", "skill-tag-learn", "No learning skills added yet.");
-  renderRecommendedStudents(user, students, skillMap);
+  renderMatchesAndRecommendations(user, students, skillMap, requests);
   renderRequestsAndConnections(user, requests, students);
 }
 
@@ -40,14 +41,112 @@ function formatYear(year) {
   return `${value}${value === 1 ? "st" : value === 2 ? "nd" : value === 3 ? "rd" : "th"} Year`;
 }
 
-function renderRecommendedStudents(user, students, skillMap) {
+function renderDashboardTopbar(user) {
+  const actions = document.getElementById("dashboard-topbar-actions");
+  if (!actions || actions.querySelector(".dashboard-profile-menu")) return;
+  const menu = document.createElement("div");
+  menu.className = "dashboard-profile-menu";
+  menu.innerHTML = `
+    <button type="button" class="dashboard-profile-trigger" id="dashboard-user-trigger" aria-haspopup="true" aria-expanded="false">
+      <span class="user-avatar-small">${escapeHtml(user.name.charAt(0))}</span>
+      <span>${escapeHtml(user.name)}</span>
+      <span class="dashboard-profile-arrow" aria-hidden="true">&#9662;</span>
+    </button>
+    <div class="dashboard-profile-dropdown" id="dashboard-user-dropdown" role="menu" aria-labelledby="dashboard-user-trigger">
+      <div class="dashboard-profile-summary">
+        <strong>${escapeHtml(user.name)}</strong>
+        <small>${escapeHtml(user.email)}</small>
+      </div>
+      <div class="dashboard-profile-divider" role="separator"></div>
+      <a href="profile.html" role="menuitem">My Profile</a>
+      <button type="button" class="dashboard-menu-action btn-logout dashboard-menu-logout" role="menuitem">Logout</button>
+    </div>
+  `;
+  actions.appendChild(menu);
+}
+
+function skillNamesFor(skillMap, userId, type) {
+  return (skillMap.get(userId) || []).filter((skill) => skill.skillType === type).map((skill) => skill.skillName);
+}
+
+function overlapNames(first, second) {
+  const lookup = new Set(second.map((name) => name.toLowerCase()));
+  return first.filter((name) => lookup.has(name.toLowerCase()));
+}
+
+function requestButtonHtml(student, pendingIds, connectedIds) {
+  if (connectedIds.has(student.id)) return `<button type="button" class="btn btn-secondary btn-sm" disabled>Connected</button>`;
+  if (pendingIds.has(student.id)) return `<button type="button" class="btn btn-secondary btn-sm" disabled>Request Sent</button>`;
+  return `<a href="student-details.html?id=${student.id}" class="btn btn-primary btn-sm">Send Request</a>`;
+}
+
+function renderMatchesAndRecommendations(user, students, skillMap, requests) {
+  const myTeach = skillNamesFor(skillMap, user.id, "TEACH");
+  const myLearn = skillNamesFor(skillMap, user.id, "LEARN");
+  const others = students.filter((student) => student.id !== user.id && String(student.role).toUpperCase() !== "ADMIN");
+  const pendingIds = new Set(requests.filter((request) => request.status === "PENDING").map((request) => (request.senderId === user.id ? request.receiverId : request.senderId)));
+  const connectedIds = new Set(requests.filter((request) => request.status === "ACCEPTED").map((request) => (request.senderId === user.id ? request.receiverId : request.senderId)));
+
+  const matches = others
+    .map((student) => ({
+      student,
+      theyCanTeach: overlapNames(skillNamesFor(skillMap, student.id, "TEACH"), myLearn),
+      youCanTeach: overlapNames(myTeach, skillNamesFor(skillMap, student.id, "LEARN"))
+    }))
+    .filter((match) => match.theyCanTeach.length || match.youCanTeach.length)
+    .sort((first, second) => (second.theyCanTeach.length + second.youCanTeach.length) - (first.theyCanTeach.length + first.youCanTeach.length));
+
+  const matchCount = document.getElementById("dashboard-match-count");
+  if (matchCount) matchCount.textContent = matches.length;
+
+  const matchContainer = document.getElementById("dashboard-potential-matches");
+  if (matchContainer) {
+    matchContainer.innerHTML = matches.length ? matches.slice(0, 3).map(({ student, theyCanTeach, youCanTeach }) => `
+      <article class="potential-match-card">
+        <div class="student-card-header">
+          <div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div>
+          <div class="student-header-info">
+            <h3 class="student-card-name">${escapeHtml(student.name)}</h3>
+            <div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(formatYear(student.year))}</div>
+          </div>
+        </div>
+        <div class="match-reason">
+          ${youCanTeach.length ? `<span>You can teach: <strong>${escapeHtml(youCanTeach.join(", "))}</strong></span>` : ""}
+          ${theyCanTeach.length ? `<span>They can teach: <strong>${escapeHtml(theyCanTeach.join(", "))}</strong></span>` : ""}
+        </div>
+        <div class="student-card-actions">
+          <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
+          ${requestButtonHtml(student, pendingIds, connectedIds)}
+        </div>
+      </article>`).join("") : `
+      <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
+        <div class="empty-state-title">No skill matches found</div>
+        <p class="empty-state-desc">Add more teaching or learning skills to discover compatible students.</p>
+      </div>`;
+  }
+
+  const matchedIds = new Set(matches.map((match) => match.student.id));
+  const recommended = others.filter((student) => !matchedIds.has(student.id)).slice(0, 3);
   const container = document.getElementById("dashboard-recommended-students");
   if (!container) return;
-  const recommendations = students.filter((student) => student.id !== user.id && String(student.role).toUpperCase() !== "ADMIN").slice(0, 3);
-  container.innerHTML = recommendations.length ? recommendations.map((student) => {
-    const teaching = (skillMap.get(student.id) || []).filter((skill) => skill.skillType === "TEACH").slice(0, 2).map((skill) => skill.skillName).join(" / ");
-    return `<a class="recommended-student" href="student-details.html?id=${student.id}"><span class="student-avatar">${escapeHtml(student.name.charAt(0))}</span><span><strong>${escapeHtml(student.name)}</strong><small>${escapeHtml(teaching || "No skills offered yet")}</small></span></a>`;
-  }).join("") : `<p class="form-help">No other students are available yet.</p>`;
+  container.innerHTML = recommended.length ? recommended.map((student) => `
+    <article class="recommended-student">
+      <div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div>
+      <strong>${escapeHtml(student.name)}</strong>
+      <small>${escapeHtml(student.department)} &bull; ${escapeHtml(formatYear(student.year))}</small>
+      <span class="recommended-label">Can teach</span>
+      <span class="recommended-skills">${escapeHtml(skillNamesFor(skillMap, student.id, "TEACH").join(", ") || "None listed")}</span>
+      <span class="recommended-label">Wants to learn</span>
+      <span class="recommended-skills">${escapeHtml(skillNamesFor(skillMap, student.id, "LEARN").join(", ") || "None listed")}</span>
+      <span class="recommended-actions">
+        <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
+        ${requestButtonHtml(student, pendingIds, connectedIds)}
+      </span>
+    </article>`).join("") : `
+    <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
+      <div class="empty-state-title">No other students to recommend</div>
+      <p class="empty-state-desc">Visit Find Students to explore the campus directory.</p>
+    </div>`;
 }
 
 function renderSkillsList(skills, containerId, badgeClass, emptyMessage) {
@@ -70,7 +169,7 @@ function renderRequestsAndConnections(user, requests, students) {
   if (connectionContainer) connectionContainer.innerHTML = accepted.length ? accepted.map((request) => {
     const peerId = request.senderId === user.id ? request.receiverId : request.senderId;
     const peer = students.find((student) => student.id === peerId);
-    return `<div class="request-item"><div class="request-item-main"><div class="request-item-title">${escapeHtml(peer?.name || "Peer Student")}</div><div class="request-exchange-info"><span>${escapeHtml(peer ? `${peer.department} • ${formatYear(peer.year)}` : "Peer Student")}</span> &bull; <span>Exchanging: <strong>${escapeHtml(request.requestedSkill || "None")}</strong> & <strong>${escapeHtml(request.offeredSkill || "None")}</strong></span></div></div><div class="request-actions"><a href="student-details.html?id=${peerId}" class="btn btn-sm btn-secondary">View Profile</a><button type="button" class="btn btn-sm btn-outline-danger" onclick="handleDisconnect(${request.id})">Disconnect</button></div></div>`;
+    return `<div class="request-item"><div class="request-item-main"><div class="request-item-title">${escapeHtml(peer?.name || "Peer Student")}</div><div class="request-exchange-info"><span>${escapeHtml(peer ? `${peer.department} • ${formatYear(peer.year)}` : "Peer Student")}</span> &bull; <span>Exchanging: <strong>${escapeHtml(request.requestedSkill || "None")}</strong> &amp; <strong>${escapeHtml(request.offeredSkill || "None")}</strong></span></div></div><div class="request-actions"><a href="student-details.html?id=${peerId}" class="btn btn-sm btn-secondary">View Profile</a><button type="button" class="btn btn-sm btn-outline-danger" onclick="handleDisconnect(${request.id})">Disconnect</button></div></div>`;
   }).join("") : `<div class="empty-state" style="padding: 20px 0;"><p class="empty-state-desc">No accepted connections yet. Discover peers in <a href="find-students.html">Find Students</a>.</p></div>`;
 }
 
@@ -116,20 +215,33 @@ function initAddSkillModal(user) {
   const form = document.getElementById("add-skill-form");
   const select = document.getElementById("skill-selection");
   if (!modal || !openButton) return;
-  getSkills().then((skills) => { if (select) select.innerHTML = `<option value="">-- Choose from available skills --</option>${skills.map((skill) => `<option value="${skill.id}">${escapeHtml(skill.skillName)}</option>`).join("")}<option value="__custom__">+ Enter a new skill</option>`; }).catch((error) => showToast(error.message, "error"));
+  const loadOptions = () => populateSkillSelect(select).catch((error) => showToast(error.message, "error"));
+  loadOptions();
   openButton.addEventListener("click", () => modal.classList.add("active"));
-  const close = () => { modal.classList.remove("active"); form?.reset(); };
-  closeButton?.addEventListener("click", close); cancelButton?.addEventListener("click", close);
+  const close = () => { modal.classList.remove("active"); form?.reset(); resetCustomSkillGroup(); };
+  closeButton?.addEventListener("click", close);
+  cancelButton?.addEventListener("click", close);
   select?.addEventListener("change", () => { document.getElementById("custom-skill-group").style.display = select.value === "__custom__" ? "block" : "none"; });
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
     try {
       const type = document.querySelector('input[name="skillType"]:checked').value;
+      const wasCustom = select.value === "__custom__";
       let skillId = select.value;
-      if (skillId === "__custom__") skillId = await resolveCustomSkillId(document.getElementById("custom-skill-name").value);
-      if (!skillId) return;
+      if (wasCustom) skillId = await resolveCustomSkillId(document.getElementById("custom-skill-name").value);
+      if (!skillId) throw new Error("Please choose a skill.");
       await assignSkill(user.id, Number(skillId), type);
-      close(); await renderDashboard(getCurrentUser()); showToast("Skill added successfully.", "success");
-    } catch (error) { showToast(error.message, "error"); }
+      close();
+      if (wasCustom) loadOptions();
+      await renderDashboard(getCurrentUser());
+      showToast("Skill added successfully.", "success");
+    } catch (error) {
+      showToast(error.message, "error");
+    } finally {
+      submitButton.disabled = false;
+    }
   });
 }

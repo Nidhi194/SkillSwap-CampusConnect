@@ -32,7 +32,13 @@ function renderStudentDetails(target, currentUser) {
   const offered = new Set(currentSkills.filter((skill) => skill.skillType === "TEACH").map((skill) => skill.skillName.toLowerCase()));
   const canLearn = targetSkills.filter((skill) => skill.skillType === "TEACH" && wanted.has(skill.skillName.toLowerCase())).map((skill) => skill.skillName);
   const canTeach = targetSkills.filter((skill) => skill.skillType === "LEARN" && offered.has(skill.skillName.toLowerCase())).map((skill) => skill.skillName);
-  compatibility.innerHTML = canLearn.length || canTeach.length ? `<div class="compatibility-banner compatibility-match"><div class="compatibility-title">Potential Skill Match</div><p class="compatibility-desc">You and ${escapeHtml(target.name)} have overlapping learning interests.</p></div>` : `<div class="compatibility-banner compatibility-none"><div class="compatibility-title">No Direct Match Found</div></div>`;
+  const details = [
+    canLearn.length ? `<li>They can teach you: <strong>${escapeHtml(canLearn.join(", "))}</strong></li>` : "",
+    canTeach.length ? `<li>You can teach them: <strong>${escapeHtml(canTeach.join(", "))}</strong></li>` : ""
+  ].join("");
+  compatibility.innerHTML = canLearn.length || canTeach.length
+    ? `<div class="compatibility-banner compatibility-match"><div class="compatibility-title">Potential Skill Match</div><p class="compatibility-desc">You and ${escapeHtml(target.name)} have overlapping learning interests.</p><ul class="compatibility-details-list">${details}</ul></div>`
+    : `<div class="compatibility-banner compatibility-none"><div class="compatibility-title">No Direct Match Found</div></div>`;
 }
 
 function formatDetailsYear(year) { const value = Number(year); return Number.isNaN(value) ? year : `${value}${value === 1 ? "st" : value === 2 ? "nd" : value === 3 ? "rd" : "th"} Year`; }
@@ -92,6 +98,9 @@ async function initDetailRequestModal(target, currentUser) {
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
     try {
       const wantedVal = document.getElementById("detail-skill-wanted").value;
       const offeredVal = document.getElementById("detail-skill-offered").value;
@@ -106,6 +115,8 @@ async function initDetailRequestModal(target, currentUser) {
       showToast(`Request sent to ${target.name}!`, "success");
     } catch (error) {
       showToast(error.message, "error");
+    } finally {
+      submitButton.disabled = false;
     }
   });
 }

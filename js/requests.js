@@ -6,11 +6,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function initTabs() {
-  document.querySelectorAll(".tab-btn").forEach((button) => button.addEventListener("click", () => {
+  const buttons = document.querySelectorAll(".tab-btn");
+  buttons.forEach((button) => button.addEventListener("click", () => {
     const targetId = button.getAttribute("data-tab");
-    document.querySelectorAll(".tab-btn").forEach((item) => item.classList.remove("active"));
+    buttons.forEach((item) => { item.classList.remove("active"); item.setAttribute("aria-selected", "false"); });
     document.querySelectorAll(".tab-panel").forEach((panel) => (panel.style.display = "none"));
     button.classList.add("active");
+    button.setAttribute("aria-selected", "true");
     document.getElementById(targetId)?.style.setProperty("display", "block");
   }));
 }

@@ -1,12 +1,18 @@
 /**
  * SkillSwap Campus - Authentication Logic
- * Simple, beginner-friendly frontend validation and session management.
- * No external auth or backend server needed.
+ * Frontend validation, then login/registration through the backend API.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
+
+  // Already signed in: skip the auth pages.
+  const existingUser = getCurrentUser();
+  if (existingUser && (loginForm || registerForm)) {
+    window.location.replace(isAdminUser(existingUser) ? "admin.html" : "dashboard.html");
+    return;
+  }
 
   if (loginForm) {
     loginForm.addEventListener("submit", handleLoginSubmit);
@@ -47,7 +53,7 @@ async function handleLoginSubmit(e) {
   hideError(errorBox);
 
   const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  const password = passwordInput.value;
 
   // Simple Frontend Validation
   if (!email) {
@@ -100,7 +106,7 @@ async function handleRegisterSubmit(e) {
 
   const name = nameInput.value.trim();
   const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  const password = passwordInput.value;
   const department = departmentSelect.value;
   const year = yearSelect.value;
 
