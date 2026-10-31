@@ -74,8 +74,9 @@ function overlapNames(first, second) {
   return first.filter((name) => lookup.has(name.toLowerCase()));
 }
 
-function requestButtonHtml(student, pendingIds, connectedIds) {
+function requestButtonHtml(student, pendingIds, connectedIds, incomingIds) {
   if (connectedIds.has(student.id)) return `<button type="button" class="btn btn-secondary btn-sm" disabled>Connected</button>`;
+  if (incomingIds.has(student.id)) return `<a href="requests.html" class="btn btn-secondary btn-sm">Respond to Request</a>`;
   if (pendingIds.has(student.id)) return `<button type="button" class="btn btn-secondary btn-sm" disabled>Request Sent</button>`;
   return `<a href="student-details.html?id=${student.id}" class="btn btn-primary btn-sm">Send Request</a>`;
 }
@@ -84,7 +85,8 @@ function renderMatchesAndRecommendations(user, students, skillMap, requests) {
   const myTeach = skillNamesFor(skillMap, user.id, "TEACH");
   const myLearn = skillNamesFor(skillMap, user.id, "LEARN");
   const others = students.filter((student) => student.id !== user.id && String(student.role).toUpperCase() !== "ADMIN");
-  const pendingIds = new Set(requests.filter((request) => request.status === "PENDING").map((request) => (request.senderId === user.id ? request.receiverId : request.senderId)));
+  const pendingIds = new Set(requests.filter((request) => request.status === "PENDING" && request.senderId === user.id).map((request) => request.receiverId));
+  const incomingIds = new Set(requests.filter((request) => request.status === "PENDING" && request.receiverId === user.id).map((request) => request.senderId));
   const connectedIds = new Set(requests.filter((request) => request.status === "ACCEPTED").map((request) => (request.senderId === user.id ? request.receiverId : request.senderId)));
 
   const matches = others
@@ -116,7 +118,7 @@ function renderMatchesAndRecommendations(user, students, skillMap, requests) {
         </div>
         <div class="student-card-actions">
           <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
-          ${requestButtonHtml(student, pendingIds, connectedIds)}
+          ${requestButtonHtml(student, pendingIds, connectedIds, incomingIds)}
         </div>
       </article>`).join("") : `
       <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
@@ -140,7 +142,7 @@ function renderMatchesAndRecommendations(user, students, skillMap, requests) {
       <span class="recommended-skills">${escapeHtml(skillNamesFor(skillMap, student.id, "LEARN").join(", ") || "None listed")}</span>
       <span class="recommended-actions">
         <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a>
-        ${requestButtonHtml(student, pendingIds, connectedIds)}
+        ${requestButtonHtml(student, pendingIds, connectedIds, incomingIds)}
       </span>
     </article>`).join("") : `
     <div class="empty-state" style="grid-column: 1 / -1; padding: 24px 20px;">
@@ -169,7 +171,7 @@ function renderRequestsAndConnections(user, requests, students) {
   if (connectionContainer) connectionContainer.innerHTML = accepted.length ? accepted.map((request) => {
     const peerId = request.senderId === user.id ? request.receiverId : request.senderId;
     const peer = students.find((student) => student.id === peerId);
-    return `<div class="request-item"><div class="request-item-main"><div class="request-item-title">${escapeHtml(peer?.name || "Peer Student")}</div><div class="request-exchange-info"><span>${escapeHtml(peer ? `${peer.department} • ${formatYear(peer.year)}` : "Peer Student")}</span> &bull; <span>Exchanging: <strong>${escapeHtml(request.requestedSkill || "None")}</strong> &amp; <strong>${escapeHtml(request.offeredSkill || "None")}</strong></span></div></div><div class="request-actions"><a href="student-details.html?id=${peerId}" class="btn btn-sm btn-secondary">View Profile</a><button type="button" class="btn btn-sm btn-outline-danger" onclick="handleDisconnect(${request.id})">Disconnect</button></div></div>`;
+    return `<div class="request-item"><div class="request-item-main"><div class="request-item-title">${escapeHtml(peer?.name || "Peer Student")}</div><div class="request-exchange-info"><span>${escapeHtml(peer ? `${peer.department} • ${formatYear(peer.year)}` : "Peer Student")}</span><span>Exchanging: <strong>${escapeHtml(request.requestedSkill || "None")}</strong> &amp; <strong>${escapeHtml(request.offeredSkill || "None")}</strong></span></div></div><div class="request-actions"><a href="student-details.html?id=${peerId}" class="btn btn-sm btn-secondary">View Profile</a><button type="button" class="btn btn-sm btn-outline-danger" onclick="handleDisconnect(${request.id})">Disconnect</button></div></div>`;
   }).join("") : `<div class="empty-state" style="padding: 20px 0;"><p class="empty-state-desc">No accepted connections yet. Discover peers in <a href="find-students.html">Find Students</a>.</p></div>`;
 }
 
