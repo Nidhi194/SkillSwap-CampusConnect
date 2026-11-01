@@ -3,7 +3,6 @@ package com.skillswap.campus.controller;
 import com.skillswap.campus.dto.UserResponse;
 import com.skillswap.campus.dto.UserUpdateRequest;
 import com.skillswap.campus.entity.UserRole;
-import com.skillswap.campus.security.AuthTokenService;
 import com.skillswap.campus.security.AuthUser;
 import com.skillswap.campus.security.SecurityAccess;
 import com.skillswap.campus.service.UserService;
@@ -28,12 +27,10 @@ public class UserController {
     private final UserService userService;
 
     private final SecurityAccess securityAccess;
-    private final AuthTokenService tokenService;
 
-    public UserController(UserService userService, SecurityAccess securityAccess, AuthTokenService tokenService) {
+    public UserController(UserService userService, SecurityAccess securityAccess) {
         this.userService = userService;
         this.securityAccess = securityAccess;
-        this.tokenService = tokenService;
     }
 
     @GetMapping
@@ -72,7 +69,6 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         AuthUser current = securityAccess.currentUser();
         userService.deleteUser(id, current == null ? null : current.id());
-        tokenService.revokeUser(id);
         return ResponseEntity.noContent().build();
     }
 }

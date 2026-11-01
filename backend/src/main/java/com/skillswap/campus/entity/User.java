@@ -10,6 +10,7 @@ public class User {
     private Integer year;
     private String bio;
     private UserRole role = UserRole.STUDENT;
+    private long tokenVersion;
 
     public User() {
     }
@@ -85,6 +86,14 @@ public class User {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public long getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(long tokenVersion) {
+        this.tokenVersion = tokenVersion;
     }
 
 }

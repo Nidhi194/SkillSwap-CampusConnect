@@ -86,6 +86,12 @@ public class UserService {
         }
     }
 
+    public void bumpTokenVersion(Long userId) {
+        User user = getUser(userId);
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        userDAO.save(user);
+    }
+
     private void recordFailedLogin(String loginKey, FailedLoginWindow loginWindow) {
         loginWindow.recordFailure();
         if (loginWindow.isEmpty()) {
@@ -143,6 +149,8 @@ public class UserService {
         User target = getUser(id);
         if (id.equals(actingUserId)) throw new IllegalArgumentException("You cannot remove your own account.");
         if (target.getRole() == UserRole.ADMIN) throw new IllegalArgumentException("Admin accounts cannot be removed.");
+        target.setTokenVersion(target.getTokenVersion() + 1);
+        userDAO.save(target);
         userDAO.deleteById(id);
     }
 

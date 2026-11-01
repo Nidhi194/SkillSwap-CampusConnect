@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     year       INT NOT NULL,
     bio        TEXT NULL,
     role       VARCHAR(20) NOT NULL DEFAULT 'STUDENT',
+    token_version BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT uq_users_email UNIQUE (email)
 );
 

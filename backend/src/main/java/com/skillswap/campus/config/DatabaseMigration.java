@@ -51,6 +51,7 @@ public class DatabaseMigration implements CommandLineRunner {
         try (Connection connection = DBConnection.getConnection()) {
             runSchema(connection);
             addColumnIfMissing(connection, "users", "bio", "TEXT NULL");
+            addColumnIfMissing(connection, "users", "token_version", "BIGINT NOT NULL DEFAULT 0");
             addColumnIfMissing(connection, "swap_requests", "offered_skill_id", "BIGINT NULL");
             addColumnIfMissing(connection, "swap_requests", "created_at", "DATE NULL");
             makeSkillIdNullable(connection);

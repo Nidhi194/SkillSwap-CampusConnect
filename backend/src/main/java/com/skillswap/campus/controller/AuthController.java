@@ -37,14 +37,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String header) {
-        if (header != null && header.startsWith("Bearer ")) tokenService.revoke(header.substring(7).trim());
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7).trim();
+            var user = tokenService.find(token);
+            if (user != null) userService.bumpTokenVersion(user.id());
+        }
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         var user = userService.login(request.email(), request.password(), httpRequest.getRemoteAddr());
-        String token = tokenService.issue(new AuthUser(user.getId(), user.getRole()));
+        String token = tokenService.issue(new AuthUser(user.getId(), user.getRole(), user.getTokenVersion()));
         return new AuthResponse(token, UserResponse.from(user));
     }
 }
