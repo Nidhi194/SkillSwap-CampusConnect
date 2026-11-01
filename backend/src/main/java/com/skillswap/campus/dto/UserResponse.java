@@ -13,10 +13,14 @@ public record UserResponse(
         UserRole role
 ) {
     public static UserResponse from(User user) {
+        return from(user, true);
+    }
+
+    public static UserResponse from(User user, boolean includeEmail) {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
-                user.getEmail(),
+                includeEmail ? user.getEmail() : null,
                 user.getDepartment(),
                 user.getYear(),
                 user.getBio(),

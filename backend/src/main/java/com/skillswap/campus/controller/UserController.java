@@ -41,12 +41,21 @@ public class UserController {
                                        @RequestParam(required = false) UserRole role) {
         var users = skill != null && !skill.isBlank() ? userService.searchStudentsBySkill(skill)
                 : role != null ? userService.getUsersByRole(role) : userService.getAllUsers();
-        return users.stream().map(UserResponse::from).toList();
+        AuthUser currentUser = securityAccess.currentUser();
+        return users.stream()
+                .map(user -> UserResponse.from(user, canViewEmail(currentUser, user.getId())))
+                .toList();
     }
 
     @GetMapping("/{id}")
     public UserResponse getUser(@PathVariable Long id) {
-        return UserResponse.from(userService.getUser(id));
+        var user = userService.getUser(id);
+        return UserResponse.from(user, canViewEmail(securityAccess.currentUser(), user.getId()));
+    }
+
+    private boolean canViewEmail(AuthUser currentUser, Long targetUserId) {
+        return currentUser != null
+                && (currentUser.role() == UserRole.ADMIN || currentUser.id().equals(targetUserId));
     }
 
     @PutMapping("/{id}")

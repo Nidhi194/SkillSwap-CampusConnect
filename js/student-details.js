@@ -22,7 +22,9 @@ function renderStudentDetails(target, currentUser) {
   document.getElementById("detail-avatar").textContent = target.name.charAt(0);
   document.getElementById("detail-name").textContent = target.name;
   document.getElementById("detail-dept-year").textContent = `${target.department} • ${formatDetailsYear(target.year)}`;
-  document.getElementById("detail-email").textContent = target.email;
+  const emailElement = document.getElementById("detail-email");
+  emailElement.textContent = target.email || "";
+  emailElement.closest(".form-group")?.toggleAttribute("hidden", !target.email);
   document.getElementById("detail-bio").textContent = target.bio || "No biography provided.";
   renderSkillsGroup(targetSkills.filter((skill) => skill.skillType === "TEACH"), "detail-teach-skills", "skill-tag-teach", "None listed");
   renderSkillsGroup(targetSkills.filter((skill) => skill.skillType === "LEARN"), "detail-learn-skills", "skill-tag-learn", "None listed");
