@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -41,8 +42,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        var user = userService.login(request.email(), request.password());
+    public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        var user = userService.login(request.email(), request.password(), httpRequest.getRemoteAddr());
         String token = tokenService.issue(new AuthUser(user.getId(), user.getRole()));
         return new AuthResponse(token, UserResponse.from(user));
     }

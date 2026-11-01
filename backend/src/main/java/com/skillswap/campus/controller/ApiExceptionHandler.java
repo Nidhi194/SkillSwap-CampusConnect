@@ -1,6 +1,7 @@
 package com.skillswap.campus.controller;
 
 import com.skillswap.campus.exception.ResourceNotFoundException;
+import com.skillswap.campus.exception.TooManyLoginAttemptsException;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,6 +18,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleNotFound(ResourceNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", exception.getMessage()));
+    }
+
+    @ExceptionHandler(TooManyLoginAttemptsException.class)
+    public ResponseEntity<Map<String, String>> handleTooManyLoginAttempts(TooManyLoginAttemptsException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(Map.of("error", exception.getMessage()));
     }
 
