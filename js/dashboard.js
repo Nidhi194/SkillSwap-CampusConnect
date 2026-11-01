@@ -30,6 +30,7 @@ async function renderDashboard(user) {
   document.getElementById("summary-bio").textContent = user.bio || "No bio added yet.";
   renderSkillsList(userSkills.filter((skill) => skill.skillType === "TEACH"), "dashboard-teach-skills", "skill-tag-teach", "No teaching skills added yet.");
   renderSkillsList(userSkills.filter((skill) => skill.skillType === "LEARN"), "dashboard-learn-skills", "skill-tag-learn", "No learning skills added yet.");
+  renderPotentialMatches(user, students, skillMap);
   renderRecommendedStudents(user, students, skillMap);
   renderRequestsAndConnections(user, requests, students);
 }
@@ -57,6 +58,37 @@ function renderRecommendedStudents(user, students, skillMap) {
     const pill = matches ? `<span class="match-pill">${matches} skill match${matches === 1 ? "" : "es"}</span>` : "";
     return `<a class="recommended-student" href="student-details.html?id=${student.id}"><span class="student-avatar">${escapeHtml(student.name.charAt(0))}</span><span><strong>${escapeHtml(student.name)}</strong><small>${escapeHtml(teaching || "No skills offered yet")}</small>${pill}</span></a>`;
   }).join("") : `<p class="form-help">No other students are available yet.</p>`;
+}
+
+function renderPotentialMatches(user, students, skillMap) {
+  const container = document.getElementById("dashboard-potential-matches");
+  const count = document.getElementById("dashboard-match-count");
+  if (!container) return;
+
+  const skillsOf = (id, type) => (skillMap.get(id) || []).filter((skill) => skill.skillType === type);
+  const namesOf = (id, type) => skillsOf(id, type).map((skill) => String(skill.skillName).trim().toLowerCase());
+  const myTeach = namesOf(user.id, "TEACH");
+  const myLearn = namesOf(user.id, "LEARN");
+  const matches = students
+    .filter((student) => student.id !== user.id && String(student.role).toUpperCase() !== "ADMIN")
+    .map((student) => {
+      const theirTeach = skillsOf(student.id, "TEACH");
+      const theirLearn = skillsOf(student.id, "LEARN");
+      const canTeachMe = theirTeach.filter((skill) => myLearn.includes(String(skill.skillName).trim().toLowerCase()));
+      const canTeachThem = theirLearn.filter((skill) => myTeach.includes(String(skill.skillName).trim().toLowerCase()));
+      return { student, canTeachMe, canTeachThem, score: canTeachMe.length + canTeachThem.length };
+    })
+    .filter((match) => match.score > 0)
+    .sort((a, b) => b.score - a.score || String(a.student.name).localeCompare(String(b.student.name)));
+
+  if (count) count.textContent = matches.length;
+  container.innerHTML = matches.length ? matches.slice(0, 3).map(({ student, canTeachMe, canTeachThem }) => {
+    const reasons = [
+      canTeachMe.length ? `<span><strong>They can teach you:</strong> ${escapeHtml(canTeachMe.map((skill) => skill.skillName).join(", "))}</span>` : "",
+      canTeachThem.length ? `<span><strong>You can teach them:</strong> ${escapeHtml(canTeachThem.map((skill) => skill.skillName).join(", "))}</span>` : ""
+    ].filter(Boolean).join("");
+    return `<article class="potential-match-card"><div class="student-card-header"><div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div><div class="student-header-info"><h3 class="student-card-name">${escapeHtml(student.name)}</h3><div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(formatYear(student.year))}</div></div></div><div class="match-reason">${reasons}</div><div class="student-card-actions"><a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm">View Profile</a></div></article>`;
+  }).join("") : `<p class="form-help">No potential skill matches yet.</p>`;
 }
 
 function renderSkillsList(skills, containerId, badgeClass, emptyMessage) {
