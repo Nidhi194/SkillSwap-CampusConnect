@@ -141,6 +141,10 @@ public class DatabaseMigration implements CommandLineRunner {
 
     private void bootstrapAdmin() {
         if (adminEmail.isBlank() || adminPassword.isBlank()) return;
+        if (adminPassword.length() < 10) {
+            log.warn("Skipping admin bootstrap: ADMIN_PASSWORD must be at least 10 characters.");
+            return;
+        }
         if (userDAO.findAll().stream().anyMatch(user -> user.getRole() == UserRole.ADMIN)) return;
         User admin = new User(adminName, adminEmail, passwordEncoder.encode(adminPassword), "Administration", 1, UserRole.ADMIN);
         userDAO.save(admin);
