@@ -15,52 +15,52 @@
 
   <main class="main-content">
     <div class="container dashboard-container">
-      <div class="dashboard-topbar">
-        <span class="dashboard-topbar-context">Student Dashboard</span>
-        <div class="dashboard-topbar-actions" id="dashboard-topbar-actions"></div>
-      </div>
-
-      <div class="page-header">
-        <div class="page-header-row">
-          <div>
-            <h1 class="page-title" id="welcome-title">Welcome back!</h1>
-            <p class="page-description">Your skill exchange overview</p>
-          </div>
-          <div class="quick-actions-bar">
-            <a href="find-students.html" class="btn btn-primary">Find Students</a>
-            <button type="button" class="btn btn-secondary" id="btn-open-add-skill">+ Add Skill</button>
-            <a href="requests.html" class="btn btn-secondary">View Requests</a>
-          </div>
+      <section class="dashboard-greeting-banner">
+        <div>
+          <span class="dashboard-eyebrow">Your skill exchange space</span>
+          <h1 id="welcome-title">Welcome back!</h1>
+          <p>Share what you know, discover what you can learn, and make your next connection.</p>
         </div>
+        <a href="find-students.html" class="btn dashboard-banner-button">Find students</a>
+      </section>
+
+      <div class="dashboard-stat-grid">
+        <article class="dashboard-stat-tile">
+          <span class="dashboard-stat-icon stat-icon-purple">✦</span>
+          <div><strong id="dashboard-match-count">0</strong><span>Potential matches</span></div>
+        </article>
+        <article class="dashboard-stat-tile">
+          <span class="dashboard-stat-icon stat-icon-amber">◷</span>
+          <div><strong id="pending-count-badge" class="dashboard-stat-value">0</strong><span>Pending requests</span></div>
+        </article>
+        <article class="dashboard-stat-tile">
+          <span class="dashboard-stat-icon stat-icon-green">↗</span>
+          <div><strong id="connections-count-badge" class="dashboard-stat-value">0</strong><span>Connections</span></div>
+        </article>
       </div>
 
-      <div class="dashboard-overview">
-        <section class="card exchange-overview-card">
-          <div class="section-heading-row">
+      <div class="dashboard-skills-profile">
+        <section class="dashboard-skill-cards">
+          <div class="dashboard-section-heading">
             <div>
-              <span class="section-kicker">Your Skills</span>
-              <h2 class="dashboard-section-title">Ready for your next exchange?</h2>
+              <span class="section-kicker">Your skills</span>
+              <h2 class="dashboard-section-title">Ready to exchange?</h2>
             </div>
-            <div class="match-summary">
-              <strong id="dashboard-match-count">0</strong>
-              <span>potential matches</span>
-              <a href="find-students.html" class="btn btn-primary btn-sm">Find Matches</a>
-            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-open-add-skill">+ Add Skill</button>
           </div>
-          <div class="exchange-skill-columns">
-            <div class="exchange-skill-group exchange-skill-teach">
-              <div class="exchange-label">Can Teach</div>
+          <div class="dashboard-skill-grid">
+            <article class="dashboard-skill-card dashboard-skill-teach">
+              <div class="dashboard-skill-card-heading"><span class="dashboard-skill-icon">↗</span><h3>Can Teach</h3></div>
               <div class="skill-tag-group" id="dashboard-teach-skills"></div>
-            </div>
-            <div class="exchange-skill-divider" aria-hidden="true"></div>
-            <div class="exchange-skill-group exchange-skill-learn">
-              <div class="exchange-label">Want to Learn</div>
+            </article>
+            <article class="dashboard-skill-card dashboard-skill-learn">
+              <div class="dashboard-skill-card-heading"><span class="dashboard-skill-icon">⌁</span><h3>Want to Learn</h3></div>
               <div class="skill-tag-group" id="dashboard-learn-skills"></div>
-            </div>
+            </article>
           </div>
         </section>
 
-        <aside class="card profile-summary-box">
+        <aside class="card dashboard-profile-card profile-summary-box">
           <div class="profile-summary-heading">
             <div class="profile-avatar-large" id="summary-avatar">S</div>
             <div>
@@ -70,7 +70,7 @@
           </div>
           <span id="summary-email" hidden></span>
           <p class="form-help" id="summary-bio"></p>
-          <a href="profile.html" class="btn btn-secondary btn-sm btn-block">View Profile</a>
+          <a href="profile.html" class="btn btn-secondary btn-sm btn-block">View profile</a>
         </aside>
       </div>
 
@@ -82,36 +82,32 @@
           </div>
           <a href="find-students.html" class="btn-text btn-sm">Browse students</a>
         </div>
-        <div class="potential-match-grid" id="dashboard-potential-matches"></div>
+        <div class="potential-match-grid dashboard-match-grid" id="dashboard-potential-matches"></div>
       </section>
 
-      <section class="dashboard-section-block">
+      <section class="dashboard-section-block dashboard-recent-section">
         <div class="section-heading-row section-heading-row-compact">
           <div>
-            <span class="section-kicker">More peers to explore</span>
-            <h2 class="dashboard-section-title">Recommended Students</h2>
+            <span class="section-kicker">Stay up to date</span>
+            <h2 class="dashboard-section-title">Recent requests</h2>
           </div>
-          <a href="find-students.html" class="btn-text btn-sm">Browse all</a>
+          <a href="requests.html" class="btn-text btn-sm">View all</a>
         </div>
-        <div class="recommended-list" id="dashboard-recommended-students"></div>
+        <div class="dashboard-recent-grid">
+          <section class="card dashboard-status-card">
+            <div class="card-header"><h3 class="card-title">Pending</h3></div>
+            <div class="requests-list" id="dashboard-pending-requests"></div>
+          </section>
+          <section class="card dashboard-status-card">
+            <div class="card-header"><h3 class="card-title">Connections</h3></div>
+            <div class="requests-list" id="dashboard-connections"></div>
+          </section>
+        </div>
       </section>
 
-      <div class="dashboard-status-grid">
-        <section class="card dashboard-status-card">
-          <div class="card-header">
-            <h3 class="card-title">Pending Requests <span id="pending-count-badge" class="badge badge-neutral">0</span></h3>
-            <a href="requests.html" class="btn-text btn-sm">View all</a>
-          </div>
-          <div class="requests-list" id="dashboard-pending-requests"></div>
-        </section>
-
-        <section class="card dashboard-status-card">
-          <div class="card-header">
-            <h3 class="card-title">Accepted Connections <span id="connections-count-badge" class="badge badge-neutral">0</span></h3>
-          </div>
-          <div class="requests-list" id="dashboard-connections"></div>
-        </section>
-      </div>
+      <section class="dashboard-section-block dashboard-recommended-section" hidden>
+        <div class="recommended-list" id="dashboard-recommended-students"></div>
+      </section>
     </div>
   </main>
 
