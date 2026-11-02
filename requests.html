@@ -19,25 +19,28 @@
     <div class="container">
       
       <!-- Page Header -->
-      <div class="page-header">
+      <div class="page-header requests-page-header">
         <h1 class="page-title">Exchange Requests</h1>
         <p class="page-description">Manage incoming swap proposals from peers and check the status of requests you've sent.</p>
       </div>
 
       <!-- Navigation Tabs -->
-      <div class="tabs-nav" role="tablist">
+      <div class="tabs-nav requests-tabs" role="tablist" aria-label="Request views">
         <button type="button" class="tab-btn active" id="tab-btn-received" data-tab="tab-received" role="tab" aria-selected="true" aria-controls="tab-received">
-          Received Requests <span class="badge badge-neutral" id="badge-received-count" style="margin-left: 6px;">0</span>
+          <span>Incoming</span><span class="tab-count" id="badge-received-count">0</span>
         </button>
         <button type="button" class="tab-btn" id="tab-btn-sent" data-tab="tab-sent" role="tab" aria-selected="false" aria-controls="tab-sent">
-          Sent Requests <span class="badge badge-neutral" id="badge-sent-count" style="margin-left: 6px;">0</span>
+          <span>Sent</span><span class="tab-count" id="badge-sent-count">0</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-connections" data-tab="tab-connections" role="tab" aria-selected="false" aria-controls="tab-connections">
+          <span>Connections</span><span class="tab-count" id="badge-connections-count">0</span>
         </button>
       </div>
 
       <!-- Received Requests Tab Panel -->
       <div id="tab-received" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-received">
-        <div class="card" style="margin-bottom: 16px; padding: 14px 18px; background-color: var(--color-bg);">
-          <div style="font-size: 13px; color: var(--color-text-muted);">
+        <div class="requests-intro">
+          <div>
             Proposals sent by other students wanting to learn from you in exchange for skills they can teach.
           </div>
         </div>
@@ -49,8 +52,8 @@
 
       <!-- Sent Requests Tab Panel -->
       <div id="tab-sent" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-sent" style="display: none;">
-        <div class="card" style="margin-bottom: 16px; padding: 14px 18px; background-color: var(--color-bg);">
-          <div style="font-size: 13px; color: var(--color-text-muted);">
+        <div class="requests-intro">
+          <div>
             Proposals you have sent to peers. You will be notified of their decision here.
           </div>
         </div>
@@ -58,6 +61,11 @@
         <div class="requests-list" id="sent-requests-list">
           <!-- Rendered via JS -->
         </div>
+      </div>
+
+      <div id="tab-connections" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-connections" style="display: none;">
+        <div class="requests-intro"><div>Students you are currently connected with through a skill exchange.</div></div>
+        <div class="requests-list" id="connections-requests-list"></div>
       </div>
 
     </div>
