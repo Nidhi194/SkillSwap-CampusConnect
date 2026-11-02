@@ -2,6 +2,7 @@ let selectedTargetStudent = null;
 let directoryStudents = [];
 let directoryRequests = [];
 let directorySkills = [];
+let directoryUserSkills = [];
 let directoryPage = 1;
 const DIRECTORY_PAGE_SIZE = 12;
 
@@ -10,6 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await loadDirectoryData();
     initFilters();
+    const initialQuery = new URLSearchParams(window.location.search).get("q") || "";
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) searchInput.value = initialQuery;
     renderStudentDirectory();
     initSendRequestModal();
     document.getElementById("search-input")?.addEventListener("input", () => { directoryPage = 1; renderStudentDirectory(); });
@@ -36,6 +40,7 @@ async function loadDirectoryData() {
   });
   directorySkills = skills;
   directoryRequests = requests;
+  directoryUserSkills = byUser.get(user.id) || [];
   directoryStudents = students.map((student) => ({ ...student, skills: byUser.get(student.id) || [] }));
 }
 
@@ -80,6 +85,12 @@ function renderStudentDirectory() {
   container.innerHTML = visibleStudents.map((student) => {
     const teach = student.skills.filter((skill) => skill.skillType === "TEACH");
     const learn = student.skills.filter((skill) => skill.skillType === "LEARN");
+    const myTeach = directoryUserSkills.filter((skill) => skill.skillType === "TEACH").map((skill) => String(skill.skillName).trim().toLowerCase());
+    const myLearn = directoryUserSkills.filter((skill) => skill.skillType === "LEARN").map((skill) => String(skill.skillName).trim().toLowerCase());
+    const matchCount = teach.filter((skill) => myLearn.includes(String(skill.skillName).trim().toLowerCase())).length
+      + learn.filter((skill) => myTeach.includes(String(skill.skillName).trim().toLowerCase())).length;
+    const initial = String(student.name || "?").trim().charAt(0).toUpperCase() || "?";
+    const hue = initial === "?" ? 210 : Math.round(((initial.charCodeAt(0) - 65) * 137.5 % 360 + 360) % 360);
 
     let actionButtonHtml = `<button type="button" class="btn btn-primary btn-sm request-card-button" onclick="openRequestModalForStudent(${student.id})" style="flex: 1;">Send Request</button>`;
     if (user) {
@@ -95,7 +106,32 @@ function renderStudentDirectory() {
       }
     }
 
-    return `<article class="student-card"><div><div class="student-card-header"><div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div><div class="student-header-info"><h3 class="student-card-name">${escapeHtml(student.name)}</h3><div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(formatDirectoryYear(student.year))}</div></div></div><div class="student-skills-section"><div class="skills-subgroup"><div class="skills-subgroup-label">Can Teach</div><div class="skill-tag-group">${skillTags(teach, "skill-tag-teach")}</div></div><div class="skills-subgroup" style="margin-top: 10px;"><div class="skills-subgroup-label">Wants to Learn</div><div class="skill-tag-group">${skillTags(learn, "skill-tag-learn")}</div></div></div></div><div class="student-card-actions"><a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm" style="flex: 1;">View Profile</a>${actionButtonHtml}</div></article>`;
+    return `<article class="student-card" style="--card-hue: ${hue};">
+      <div class="student-card-banner"></div>
+      <div class="student-card-content">
+        <div class="student-card-header">
+          <div class="student-avatar">${escapeHtml(initial)}</div>
+          <div class="student-header-info">
+            <h3 class="student-card-name">${escapeHtml(student.name)}</h3>
+            <div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(formatDirectoryYear(student.year))}</div>
+          </div>
+        </div>
+        <span class="student-match-pill">${matchCount} skill match${matchCount === 1 ? "" : "es"}</span>
+        <div class="student-skills-section">
+          <div class="skills-subgroup">
+            <div class="skills-subgroup-label">Can teach</div>
+            <div class="skill-tag-group">${skillTags(teach, "skill-tag-teach")}</div>
+          </div>
+          <div class="skills-subgroup">
+            <div class="skills-subgroup-label">Wants to learn</div>
+            <div class="skill-tag-group">${skillTags(learn, "skill-tag-learn")}</div>
+          </div>
+        </div>
+      </div>
+      <div class="student-card-actions">
+        <a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm" style="flex: 1;">View Profile</a>${actionButtonHtml}
+      </div>
+    </article>`;
   }).join("");
 }
 
