@@ -1,6 +1,6 @@
 /**
  * SkillSwap Campus - Authentication Logic
- * Frontend validation, then login/registration through the backend API.
+ * Handles login, registration, and session storage using the backend REST API.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
