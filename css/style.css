@@ -4,8 +4,41 @@
  * Professional cards, subtle borders, clear typography, and consistent spacing.
  */
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 :root {
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 40px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-pill: 999px;
+
+  --shadow-level-1: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-level-2: 0 4px 10px rgba(15, 23, 42, 0.08);
+  --shadow-level-3: 0 12px 24px rgba(15, 23, 42, 0.12);
+
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+
+  --color-accent-green: #10b981;
+  --color-accent-amber: #f59e0b;
+  --color-accent-pink: #ec4899;
+  --color-accent-teal: #14b8a6;
   
   /* Primary College Tech Palette */
   --color-primary: #1d4ed8;
@@ -44,15 +77,20 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-sm: var(--shadow-level-1);
+  --shadow-md: var(--shadow-level-2);
+  --shadow-lg: var(--shadow-level-3);
   
   --max-width: 1140px;
   --header-height: 64px;
 }
 
 body[data-theme="dark"] {
+  --brand-gradient: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  --color-accent-green: #34d399;
+  --color-accent-amber: #fbbf24;
+  --color-accent-pink: #f472b6;
+  --color-accent-teal: #2dd4bf;
   --color-bg: #111827;
   --color-surface: #1f2937;
   --color-surface-hover: #273548;
@@ -72,9 +110,12 @@ body[data-theme="dark"] {
   --color-danger-bg: #4a2024;
   --color-danger-border: #8b3f47;
   --color-danger-text: #fecaca;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
-  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.4);
+  --shadow-level-1: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-level-2: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-level-3: 0 10px 24px rgba(0, 0, 0, 0.4);
+  --shadow-sm: var(--shadow-level-1);
+  --shadow-md: var(--shadow-level-2);
+  --shadow-lg: var(--shadow-level-3);
 }
 
 /* Base Reset & Box Sizing */
