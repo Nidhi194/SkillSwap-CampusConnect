@@ -1,8 +1,11 @@
+let adminStudents = [];
+
 document.addEventListener("DOMContentLoaded", async () => {
   const user = getCurrentUser();
   if (!user || !isAdminUser(user)) { window.location.href = user ? "dashboard.html" : "login.html"; return; }
   initAdminTableActions();
   initAddSkillCatalogForm();
+  initStudentSearch();
   try { await renderAdminDashboard(); } catch (error) { showToast(error.message, "error"); }
 });
 
@@ -26,9 +29,27 @@ function formatAdminYear(year) {
 }
 
 function renderStudentTable(students) {
+  adminStudents = students;
+  const search = document.getElementById("admin-student-search");
+  const term = String(search?.value || "").trim().toLowerCase();
+  const filteredStudents = term
+    ? students.filter((student) => `${student.name} ${student.email} ${student.department} ${formatAdminYear(student.year)}`.toLowerCase().includes(term))
+    : students;
   const tbody = document.getElementById("admin-students-tbody");
-  if (!students.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted); padding: 24px;">No students currently registered.</td></tr>`; return; }
-  tbody.innerHTML = students.map((student) => `<tr><td><strong>${escapeHtml(student.name)}</strong><div style="font-size: 12px; color: var(--color-text-muted);">${escapeHtml(student.email)}</div></td><td>${escapeHtml(student.department)}</td><td>${escapeHtml(formatAdminYear(student.year))}</td><td><span class="badge badge-primary">Student</span></td><td><button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-student" data-id="${Number(student.id)}" data-name="${escapeHtml(student.name)}">Remove</button></td></tr>`).join("");
+  if (!filteredStudents.length) {
+    const message = term ? "No students match your search." : "No students currently registered.";
+    tbody.innerHTML = `<tr><td colspan="5"><div class="admin-table-empty"><div class="empty-state-title">${message}</div><p class="empty-state-desc">${term ? "Try a different name, email, or department." : "Registered students will appear here."}</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filteredStudents.map((student) => {
+    const initial = String(student.name || "?").trim().charAt(0).toUpperCase() || "?";
+    return `<tr><td><div class="admin-student-cell"><span class="student-avatar user-avatar-small">${escapeHtml(initial)}</span><div><strong>${escapeHtml(student.name)}</strong><div class="admin-student-email">${escapeHtml(student.email)}</div></div></div></td><td>${escapeHtml(student.department)}</td><td>${escapeHtml(formatAdminYear(student.year))}</td><td><span class="badge badge-primary">Student</span></td><td><button type="button" class="btn btn-sm btn-outline-danger" data-action="remove-student" data-id="${Number(student.id)}" data-name="${escapeHtml(student.name)}">Remove</button></td></tr>`;
+  }).join("");
+  colorizeAvatars(tbody);
+}
+
+function initStudentSearch() {
+  document.getElementById("admin-student-search")?.addEventListener("input", () => renderStudentTable(adminStudents));
 }
 
 function renderSkillsTable(skills, assignments) {
