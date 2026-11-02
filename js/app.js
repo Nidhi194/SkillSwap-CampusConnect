@@ -41,7 +41,14 @@ function updateThemeButton(theme) {
   const themeButton = document.getElementById("btn-theme-toggle");
   if (!themeButton) return;
   const isDark = theme === "dark";
-  themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+  const label = themeButton.querySelector(".theme-label");
+  if (label) {
+    label.textContent = isDark ? "Light mode" : "Dark mode";
+  } else {
+    themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+  }
+  const icon = themeButton.querySelector(".theme-icon");
+  if (icon) icon.innerHTML = isDark ? NAV_ICONS.sun : NAV_ICONS.moon;
   themeButton.setAttribute("aria-pressed", String(isDark));
   themeButton.setAttribute("title", `Switch to ${isDark ? "light" : "dark"} mode`);
 }
@@ -68,19 +75,128 @@ function enforceRoleAccess() {
   return true;
 }
 
+const APP_SHELL_PAGES = new Set(["dashboard.html", "find-students.html", "requests.html", "profile.html", "student-details.html", "admin.html"]);
+
+const NAV_ICONS = {
+  dashboard: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>',
+  students: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c.6-3 2.4-4.5 5.5-4.5s4.9 1.5 5.5 4.5"></path><path d="M16 5.5a3 3 0 0 1 0 5.8M16 14.5c2.6.2 4.1 1.7 4.5 4.5"></path></svg>',
+  requests: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14A1.5 1.5 0 0 1 20.5 6v10A1.5 1.5 0 0 1 19 17.5H9l-4.5 3v-3H5A1.5 1.5 0 0 1 3.5 16V6A1.5 1.5 0 0 1 5 4.5Z"></path><path d="M8 9h8M8 12.5h5"></path></svg>',
+  profile: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-3.5 3-5.5 7-5.5s6.3 2 7 5.5"></path></svg>',
+  admin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 7 3v5c0 4.5-2.8 7.8-7 10-4.2-2.2-7-5.5-7-10V6l7-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>',
+  sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>',
+  moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"></path></svg>',
+  logout: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10"></path><path d="M14 8l4 4-4 4M18 12H8"></path></svg>'
+};
+
+function getCurrentPage() {
+  const path = window.location.pathname;
+  return path.substring(path.lastIndexOf("/") + 1) || "index.html";
+}
+
+function getShellPageTitle(currentPage) {
+  return {
+    "dashboard.html": "Dashboard",
+    "find-students.html": "Find Students",
+    "requests.html": "Requests",
+    "profile.html": "My Profile",
+    "student-details.html": "Student Details",
+    "admin.html": "Admin Dashboard"
+  }[currentPage] || "SkillSwap Campus";
+}
+
+function shellNavLink(href, label, icon, currentPage, badgeId) {
+  const active = href === currentPage || (currentPage === "student-details.html" && href === "find-students.html");
+  return `<a href="${href}" class="shell-nav-link${active ? " active" : ""}"${active ? ' aria-current="page"' : ""}>
+    <span class="shell-nav-icon">${icon}</span><span>${label}</span>
+    ${badgeId ? `<span class="badge-counter shell-nav-badge" id="${badgeId}" style="display: none;"></span>` : ""}
+  </a>`;
+}
+
 /**
- * Renders the top navigation bar dynamically across all pages.
+ * Renders the public top navigation or the authenticated application shell.
  */
 function renderNavbar() {
   const navContainer = document.getElementById("navbar-container");
   if (!navContainer) return;
 
   const currentUser = getCurrentUser();
-
-  // Get current page filename
-  const path = window.location.pathname;
-  const currentPage = path.substring(path.lastIndexOf("/") + 1) || "index.html";
+  const currentPage = getCurrentPage();
   const isPublicAuthPage = currentPage === "login.html" || currentPage === "register.html";
+  const isAppShell = Boolean(currentUser) && APP_SHELL_PAGES.has(currentPage);
+
+  document.body.classList.toggle("app-shell-page", isAppShell);
+  document.body.classList.toggle("public-page", !isAppShell);
+
+  if (isAppShell) {
+    const isAdmin = isAdminUser(currentUser);
+    const firstName = String(currentUser.name || "Student").trim().split(/\s+/)[0] || "Student";
+    const initial = firstName.charAt(0).toUpperCase() || "S";
+    const links = isAdmin
+      ? `${shellNavLink("admin.html", "Admin Dashboard", NAV_ICONS.admin, currentPage)}
+         ${shellNavLink("admin.html#admin-students", "Student Directory", NAV_ICONS.students, currentPage)}
+         ${shellNavLink("admin.html#admin-skills", "Skills Catalog", NAV_ICONS.dashboard, currentPage)}`
+      : `${shellNavLink("dashboard.html", "Dashboard", NAV_ICONS.dashboard, currentPage)}
+         ${shellNavLink("find-students.html", "Find Students", NAV_ICONS.students, currentPage)}
+         ${shellNavLink("requests.html", "Requests", NAV_ICONS.requests, currentPage, "nav-pending-badge")}
+         ${shellNavLink("profile.html", "My Profile", NAV_ICONS.profile, currentPage)}`;
+
+    navContainer.innerHTML = `
+      <aside class="app-sidebar" id="app-sidebar" aria-label="Primary navigation">
+        <a href="${isAdmin ? "admin.html" : "dashboard.html"}" class="shell-brand">
+          <span class="brand-logo-icon">SS</span>
+          <span><strong>SkillSwap</strong><small>Campus</small></span>
+        </a>
+        <nav class="shell-nav">${links}</nav>
+        <div class="shell-sidebar-bottom">
+          <button type="button" id="btn-theme-toggle" class="shell-action-btn theme-toggle" aria-pressed="false">
+            <span class="shell-nav-icon theme-icon">${NAV_ICONS.moon}</span><span class="theme-label">Dark mode</span>
+          </button>
+          <button type="button" id="btn-logout" class="shell-action-btn btn-logout">
+            <span class="shell-nav-icon">${NAV_ICONS.logout}</span><span>Logout</span>
+          </button>
+        </div>
+      </aside>
+      <div class="shell-scrim" id="shell-scrim"></div>
+      <div class="app-topbar">
+        <div class="shell-topbar-left">
+          <button type="button" class="shell-menu-toggle" id="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+          <h1 class="shell-page-title">${getShellPageTitle(currentPage)}</h1>
+        </div>
+        <div class="shell-topbar-actions">
+          <form class="shell-search-form" id="shell-search-form" role="search">
+            <label class="sr-only" for="shell-search-input">Search students</label>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+            <input id="shell-search-input" type="search" placeholder="Search students..." autocomplete="off">
+          </form>
+          <a href="${isAdmin ? "admin.html" : "profile.html"}" class="shell-user" aria-label="Open profile">
+            <span class="user-avatar-small">${escapeHtml(initial)}</span>
+            <span class="shell-user-name">${escapeHtml(firstName)}</span>
+          </a>
+        </div>
+      </div>
+    `;
+
+    const themeButton = document.getElementById("btn-theme-toggle");
+    updateThemeButton(document.body.dataset.theme || "light");
+    themeButton?.addEventListener("click", toggleTheme);
+    document.getElementById("nav-toggle")?.addEventListener("click", () => {
+      const sidebar = document.getElementById("app-sidebar");
+      const expanded = document.getElementById("nav-toggle").getAttribute("aria-expanded") === "true";
+      document.getElementById("nav-toggle").setAttribute("aria-expanded", String(!expanded));
+      sidebar?.classList.toggle("open", !expanded);
+      document.getElementById("shell-scrim")?.classList.toggle("open", !expanded);
+    });
+    document.getElementById("shell-scrim")?.addEventListener("click", closeShellDrawer);
+    document.getElementById("shell-search-form")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const query = document.getElementById("shell-search-input").value.trim();
+      window.location.href = `find-students.html${query ? `?q=${encodeURIComponent(query)}` : ""}`;
+    });
+    if (!isAdmin) refreshPendingCount(currentUser.id);
+    return;
+  }
 
   // Build navigation links
   let navLinksHtml = "";
@@ -181,8 +297,13 @@ function renderNavbar() {
     themeButton.addEventListener("click", toggleTheme);
   }
 
-  initProfileMenuHandlers();
   if (currentUser && !isAdminUser(currentUser)) refreshPendingCount(currentUser.id);
+}
+
+function closeShellDrawer() {
+  document.getElementById("app-sidebar")?.classList.remove("open");
+  document.getElementById("shell-scrim")?.classList.remove("open");
+  document.getElementById("nav-toggle")?.setAttribute("aria-expanded", "false");
 }
 
 async function refreshPendingCount(userId) {
