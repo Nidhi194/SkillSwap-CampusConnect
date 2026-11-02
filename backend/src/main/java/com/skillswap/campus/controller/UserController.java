@@ -34,14 +34,26 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponse> getUsers(@RequestParam(required = false) String skill,
-                                       @RequestParam(required = false) UserRole role) {
+    public ResponseEntity<List<UserResponse>> getUsers(@RequestParam(required = false) String skill,
+                                                       @RequestParam(required = false) UserRole role,
+                                                       @RequestParam(required = false) Integer page,
+                                                       @RequestParam(defaultValue = "12") int size) {
+        if (page != null && page < 0) throw new IllegalArgumentException("Page must be zero or greater.");
+        if (size < 1 || size > 100) throw new IllegalArgumentException("Page size must be between 1 and 100.");
         var users = skill != null && !skill.isBlank() ? userService.searchStudentsBySkill(skill)
                 : role != null ? userService.getUsersByRole(role) : userService.getAllUsers();
         AuthUser currentUser = securityAccess.currentUser();
-        return users.stream()
+        int total = users.size();
+        var pagedUsers = page == null ? users : users.stream()
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
+        var response = pagedUsers.stream()
                 .map(user -> UserResponse.from(user, canViewEmail(currentUser, user.getId())))
                 .toList();
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(total))
+                .body(response);
     }
 
     @GetMapping("/{id}")

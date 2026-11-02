@@ -89,10 +89,12 @@ async function registerUser(data) {
   });
 }
 
-async function getUsers(skill, role) {
+async function getUsers(skill, role, page, size) {
   const params = new URLSearchParams();
   if (skill) params.set("skill", skill);
   if (role) params.set("role", role);
+  if (page !== undefined && page !== null) params.set("page", page);
+  if (size !== undefined && size !== null) params.set("size", size);
   const query = params.toString();
   return apiRequest(`/users${query ? `?${query}` : ""}`);
 }

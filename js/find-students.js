@@ -2,6 +2,8 @@ let selectedTargetStudent = null;
 let directoryStudents = [];
 let directoryRequests = [];
 let directorySkills = [];
+let directoryPage = 1;
+const DIRECTORY_PAGE_SIZE = 12;
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!requireAuth()) return;
@@ -10,10 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     initFilters();
     renderStudentDirectory();
     initSendRequestModal();
-    document.getElementById("search-input")?.addEventListener("input", () => renderStudentDirectory());
-    document.getElementById("filter-skill")?.addEventListener("change", () => renderStudentDirectory());
-    document.getElementById("filter-department")?.addEventListener("change", () => renderStudentDirectory());
-    document.getElementById("btn-clear-filters")?.addEventListener("click", () => { document.getElementById("search-input").value = ""; document.getElementById("filter-skill").value = ""; document.getElementById("filter-department").value = ""; renderStudentDirectory(); });
+    document.getElementById("search-input")?.addEventListener("input", () => { directoryPage = 1; renderStudentDirectory(); });
+    document.getElementById("filter-skill")?.addEventListener("change", () => { directoryPage = 1; renderStudentDirectory(); });
+    document.getElementById("filter-department")?.addEventListener("change", () => { directoryPage = 1; renderStudentDirectory(); });
+    document.getElementById("btn-clear-filters")?.addEventListener("click", () => { document.getElementById("search-input").value = ""; document.getElementById("filter-skill").value = ""; document.getElementById("filter-department").value = ""; directoryPage = 1; renderStudentDirectory(); });
   } catch (error) {
     const count = document.getElementById("results-count");
     if (count) count.textContent = "Could not load students.";
@@ -65,10 +67,17 @@ function renderStudentDirectory() {
     const searchable = `${student.name} ${student.department} ${student.skills.map((skill) => skill.skillName).join(" ")}`.toLowerCase();
     return !term || searchable.includes(term);
   });
-  document.getElementById("results-count").textContent = `Showing ${filtered.length} student${filtered.length === 1 ? "" : "s"}`;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / DIRECTORY_PAGE_SIZE));
+  directoryPage = Math.min(directoryPage, totalPages);
+  const pageStart = (directoryPage - 1) * DIRECTORY_PAGE_SIZE;
+  const visibleStudents = filtered.slice(pageStart, pageStart + DIRECTORY_PAGE_SIZE);
+  document.getElementById("results-count").textContent = filtered.length
+    ? `Showing ${pageStart + 1}-${pageStart + visibleStudents.length} of ${filtered.length} students`
+    : "Showing 0 students";
   document.getElementById("btn-clear-filters").hidden = !(term || skillId || department);
+  renderDirectoryPagination(totalPages);
   if (!filtered.length) { container.innerHTML = `<div class="card empty-state" style="grid-column: 1 / -1;"><div class="empty-state-title">No students found</div><p class="empty-state-desc">Try another skill or department.</p></div>`; return; }
-  container.innerHTML = filtered.map((student) => {
+  container.innerHTML = visibleStudents.map((student) => {
     const teach = student.skills.filter((skill) => skill.skillType === "TEACH");
     const learn = student.skills.filter((skill) => skill.skillType === "LEARN");
 
@@ -88,6 +97,23 @@ function renderStudentDirectory() {
 
     return `<article class="student-card"><div><div class="student-card-header"><div class="student-avatar">${escapeHtml(student.name.charAt(0))}</div><div class="student-header-info"><h3 class="student-card-name">${escapeHtml(student.name)}</h3><div class="student-card-dept">${escapeHtml(student.department)} &bull; ${escapeHtml(formatDirectoryYear(student.year))}</div></div></div><div class="student-skills-section"><div class="skills-subgroup"><div class="skills-subgroup-label">Can Teach</div><div class="skill-tag-group">${skillTags(teach, "skill-tag-teach")}</div></div><div class="skills-subgroup" style="margin-top: 10px;"><div class="skills-subgroup-label">Wants to Learn</div><div class="skill-tag-group">${skillTags(learn, "skill-tag-learn")}</div></div></div></div><div class="student-card-actions"><a href="student-details.html?id=${student.id}" class="btn btn-secondary btn-sm" style="flex: 1;">View Profile</a>${actionButtonHtml}</div></article>`;
   }).join("");
+}
+
+function renderDirectoryPagination(totalPages) {
+  const pagination = document.getElementById("directory-pagination");
+  if (!pagination) return;
+  if (totalPages <= 1) { pagination.innerHTML = ""; return; }
+  pagination.innerHTML = Array.from({ length: totalPages }, (_, index) => {
+    const page = index + 1;
+    return `<button type="button" class="btn btn-sm ${page === directoryPage ? "btn-primary" : "btn-secondary"}" aria-label="Page ${page}" aria-current="${page === directoryPage ? "page" : "false"}">${page}</button>`;
+  }).join("");
+  pagination.querySelectorAll("button").forEach((button, index) => {
+    button.addEventListener("click", () => {
+      directoryPage = index + 1;
+      renderStudentDirectory();
+      document.getElementById("students-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 }
 
 function formatDirectoryYear(year) { const value = Number(year); return Number.isNaN(value) ? year : `${value}${value === 1 ? "st" : value === 2 ? "nd" : value === 3 ? "rd" : "th"} Year`; }
