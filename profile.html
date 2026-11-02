@@ -19,31 +19,28 @@
   <main class="main-content">
     <div class="container">
       
-      <!-- Page Header -->
-      <div class="page-header profile-page-header">
-        <div class="page-header-row">
-          <div>
-            <h1 class="page-title">My Profile</h1>
-            <p class="page-description">Manage your student details and maintain your listed skills.</p>
-          </div>
-          <div>
-            <button type="button" class="btn btn-primary" id="btn-open-edit-profile">Edit Profile</button>
-          </div>
+      <div class="profile-cover-banner">
+        <div class="profile-cover-content">
+          <span class="profile-cover-kicker">Your learning identity</span>
+          <h1>My Profile</h1>
+          <p>Show campus peers what you can share and what you want to discover.</p>
         </div>
+        <button type="button" class="btn profile-cover-button" id="btn-open-edit-profile">Edit Profile</button>
       </div>
 
       <div class="profile-layout">
         <section class="card profile-identity-card">
-          <div class="profile-identity-heading">
+          <div class="profile-cover-avatar">
             <div class="profile-avatar-large" id="profile-header-avatar">S</div>
+          </div>
+          <div class="profile-identity-heading">
             <div>
               <h2 class="profile-name" id="profile-header-name">Student Name</h2>
               <div class="profile-dept" id="profile-header-dept">Department &bull; Year</div>
             </div>
           </div>
-
           <div class="exchange-status">Open to skill exchange</div>
-
+          <p class="profile-bio-value profile-hero-bio" id="profile-view-bio"></p>
           <div class="profile-details-list">
             <div class="profile-detail-row">
               <span class="profile-detail-label">Campus Email</span>
@@ -56,10 +53,6 @@
             <div class="profile-detail-row">
               <span class="profile-detail-label">Academic Year</span>
               <span class="profile-detail-value" id="profile-view-year">-</span>
-            </div>
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Biography</span>
-              <p class="profile-detail-value profile-bio-value" id="profile-view-bio"></p>
             </div>
           </div>
         </section>

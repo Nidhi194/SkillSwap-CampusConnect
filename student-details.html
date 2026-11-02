@@ -18,9 +18,8 @@
   <main class="main-content">
     <div class="container" id="student-details-container">
       
-      <!-- Back Navigation & Header -->
-      <div style="margin-bottom: 20px;">
-        <a href="find-students.html" class="btn-text" style="padding-left: 0;">&larr; Back to Student Directory</a>
+      <div class="detail-back-link">
+        <a href="find-students.html" class="btn-text">&larr; Back to Student Directory</a>
       </div>
 
       <!-- Compatibility Banner Container -->
@@ -28,23 +27,24 @@
         <!-- Rendered via JS -->
       </div>
 
-      <div class="dashboard-grid">
+      <div class="detail-profile-layout">
         
         <!-- Left: Student Info Card -->
         <aside>
-          <div class="card profile-summary-box">
-            <div class="profile-avatar-large" id="detail-avatar">S</div>
-            <h1 class="profile-name" id="detail-name" style="font-size: 20px;">Student Name</h1>
+          <div class="card detail-profile-card">
+            <div class="detail-cover-banner"></div>
+            <div class="detail-avatar-wrap"><div class="profile-avatar-large" id="detail-avatar">S</div></div>
+            <h1 class="profile-name" id="detail-name">Student Name</h1>
             <div class="profile-dept" id="detail-dept-year">Department &bull; Year</div>
             
-            <div style="text-align: left; margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 16px;">
-              <div class="form-group" style="margin-bottom: 12px;">
-                <span class="form-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted);">Campus Email</span>
-                <span id="detail-email" style="font-size: 13px; font-weight: 500;">-</span>
+            <div class="detail-profile-meta">
+              <div class="form-group">
+                <span class="form-label">Campus Email</span>
+                <span id="detail-email">-</span>
               </div>
-              <div class="form-group" style="margin-bottom: 16px;">
-                <span class="form-label" style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted);">About / Bio</span>
-                <p id="detail-bio" style="font-size: 13px; color: var(--color-text-main); line-height: 1.45;"></p>
+              <div class="form-group">
+                <span class="form-label">About / Bio</span>
+                <p id="detail-bio"></p>
               </div>
             </div>
 
@@ -56,22 +56,22 @@
         <section class="dashboard-sections">
           
           <!-- Skills They Can Teach -->
-          <div class="card">
+          <div class="card detail-skill-card">
             <div class="card-header">
               <h3 class="card-title">Skills They Can Teach</h3>
             </div>
-            <p class="form-help" style="margin-bottom: 10px;">Skills this student is ready to mentor and share:</p>
+            <p class="form-help">Skills this student is ready to mentor and share:</p>
             <div class="skill-tag-group" id="detail-teach-skills">
               <!-- Rendered via JS -->
             </div>
           </div>
 
           <!-- Skills They Want to Learn -->
-          <div class="card">
+          <div class="card detail-skill-card">
             <div class="card-header">
               <h3 class="card-title">Skills They Want to Learn</h3>
             </div>
-            <p class="form-help" style="margin-bottom: 10px;">Skills this student is eager to learn from campus peers:</p>
+            <p class="form-help">Skills this student is eager to learn from campus peers:</p>
             <div class="skill-tag-group" id="detail-learn-skills">
               <!-- Rendered via JS -->
             </div>

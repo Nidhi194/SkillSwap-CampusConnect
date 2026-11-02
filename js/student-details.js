@@ -38,8 +38,9 @@ function renderStudentDetails(target, currentUser) {
     canLearn.length ? `<li>They can teach you: <strong>${escapeHtml(canLearn.join(", "))}</strong></li>` : "",
     canTeach.length ? `<li>You can teach them: <strong>${escapeHtml(canTeach.join(", "))}</strong></li>` : ""
   ].join("");
+  const matchCount = canLearn.length + canTeach.length;
   compatibility.innerHTML = canLearn.length || canTeach.length
-    ? `<div class="compatibility-banner compatibility-match"><div class="compatibility-title">Potential Skill Match</div><p class="compatibility-desc">You and ${escapeHtml(target.name)} have overlapping learning interests.</p><ul class="compatibility-details-list">${details}</ul></div>`
+    ? `<div class="compatibility-banner compatibility-match"><div class="compatibility-title">Potential Skill Match <span class="compatibility-count">${matchCount} skill match${matchCount === 1 ? "" : "es"}</span></div><p class="compatibility-desc">You and ${escapeHtml(target.name)} have overlapping learning interests.</p><ul class="compatibility-details-list">${details}</ul></div>`
     : `<div class="compatibility-banner compatibility-none"><div class="compatibility-title">No Direct Match Found</div></div>`;
 }
 
