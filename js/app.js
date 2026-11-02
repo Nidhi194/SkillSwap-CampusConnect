@@ -313,6 +313,53 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+function showConfirmModal({ title = "Please confirm", message, confirmLabel = "Confirm" }) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("confirmation-modal");
+    if (existing) existing.remove();
+
+    const modal = document.createElement("div");
+    modal.id = "confirmation-modal";
+    modal.className = "modal-overlay active";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "confirmation-modal-title");
+    modal.innerHTML = `
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 class="modal-title" id="confirmation-modal-title">${escapeHtml(title)}</h3>
+          <button type="button" class="modal-close" data-confirm-cancel aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">${escapeHtml(message)}</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-confirm-cancel>Cancel</button>
+          <button type="button" class="btn btn-outline-danger" data-confirm-accept>${escapeHtml(confirmLabel)}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    let settled = false;
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") close(false);
+    };
+    const close = (confirmed) => {
+      if (settled) return;
+      settled = true;
+      modal.remove();
+      document.removeEventListener("keydown", handleKeydown);
+      resolve(confirmed);
+    };
+    modal.querySelector("[data-confirm-accept]")?.addEventListener("click", () => close(true));
+    modal.querySelectorAll("[data-confirm-cancel]").forEach((button) => button.addEventListener("click", () => close(false)));
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) close(false);
+    });
+    document.addEventListener("keydown", handleKeydown);
+    modal.querySelector("[data-confirm-cancel]")?.focus();
+  });
+}
+
 /**
  * Display successful connection popup with mini scheduling UI
  */

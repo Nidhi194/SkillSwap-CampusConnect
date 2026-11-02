@@ -2666,3 +2666,14 @@ body[data-theme="dark"] .user-avatar-small[style*="--h"] {
         padding: 18px;
       }
     }
+
+.directory-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px 0 8px;
+}
+
+.directory-pagination .btn {
+  min-width: 38px;
+}

@@ -71,13 +71,13 @@ async function handleAcceptRequest(requestId) {
 }
 
 async function handleCancelRequest(requestId) {
-  if (!confirm("Cancel this request?")) return;
+  if (!await showConfirmModal({ title: "Cancel request", message: "Cancel this request?", confirmLabel: "Cancel request" })) return;
   try { await cancelSwapRequest(requestId); const user = requireAuth(); if (user) await renderAllRequests(user); renderNavbar(); showToast("Request cancelled.", "info"); }
   catch (error) { showToast(error.message, "error"); }
 }
 
 async function handleDisconnectRequest(requestId) {
-  if (!confirm("Disconnect from this student? You can send a new request later.")) return;
+  if (!await showConfirmModal({ title: "Disconnect student", message: "Disconnect from this student? You can send a new request later.", confirmLabel: "Disconnect" })) return;
   try { await disconnectSwapRequest(requestId); const user = requireAuth(); if (user) await renderAllRequests(user); renderNavbar(); showToast("Disconnected.", "info"); }
   catch (error) { showToast(error.message, "error"); }
 }

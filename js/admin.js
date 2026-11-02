@@ -55,12 +55,12 @@ function initAdminTableActions() {
 
 async function handleRemoveStudent(studentId, studentName) {
   if (studentId === getCurrentUser()?.id) { showToast("You cannot remove your own account.", "error"); return; }
-  if (!confirm(`Are you sure you want to remove student "${studentName}" from the platform?`)) return;
+  if (!await showConfirmModal({ title: "Remove student", message: `Are you sure you want to remove student "${studentName}" from the platform?`, confirmLabel: "Remove" })) return;
   try { await deleteUser(studentId); await renderAdminDashboard(); showToast(`Student "${studentName}" removed.`, "info"); } catch (error) { showToast(error.message, "error"); }
 }
 
 async function handleRemoveSkill(skillId, skillName) {
-  if (!confirm(`Remove skill "${skillName}" from the global catalog?`)) return;
+  if (!await showConfirmModal({ title: "Remove skill", message: `Remove skill "${skillName}" from the global catalog?`, confirmLabel: "Remove" })) return;
   try { await deleteSkill(skillId); await renderAdminDashboard(); showToast(`Skill "${skillName}" removed from catalog.`, "info"); } catch (error) { showToast(error.message, "error"); }
 }
 

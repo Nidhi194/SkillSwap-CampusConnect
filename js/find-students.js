@@ -126,7 +126,7 @@ async function refreshDirectoryRequests() {
 }
 
 async function handleCancelFromDirectory(requestId) {
-  if (!confirm("Cancel this request?")) return;
+  if (!await showConfirmModal({ title: "Cancel request", message: "Cancel this request?", confirmLabel: "Cancel request" })) return;
   try {
     await cancelSwapRequest(requestId);
     await refreshDirectoryRequests();

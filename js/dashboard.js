@@ -140,7 +140,7 @@ async function handleDashboardRequest(requestId, action) {
 }
 
 async function handleDisconnect(requestId) {
-  if (!confirm("Disconnect from this student? You can send a new request later.")) return;
+  if (!await showConfirmModal({ title: "Disconnect student", message: "Disconnect from this student? You can send a new request later.", confirmLabel: "Disconnect" })) return;
   try {
     await disconnectSwapRequest(requestId);
     await renderDashboard(getCurrentUser());
