@@ -7,7 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Ctext x='16' y='22' font-family='Arial,sans-serif' font-size='15' font-weight='700' text-anchor='middle' fill='white'%3ESS%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="find-students-page">
 
   <!-- Top Navigation Bar -->
   <header class="site-header">
@@ -19,52 +19,61 @@
     <div class="container">
       
       <!-- Page Header -->
-      <div class="page-header">
+      <div class="directory-hero">
         <h1 class="page-title">Find Students</h1>
-        <p class="page-description">Search by skill or peer name, filter by department, and propose a knowledge swap.</p>
+        <p class="page-description">Connect with peers, exchange knowledge, and grow together.</p>
       </div>
 
       <!-- Search & Filters Bar -->
       <div class="card search-filter-card">
         <div class="filters-row">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label for="search-input" class="form-label">Search by Name or Skill</label>
-            <input 
+          <div class="directory-search">
+            <label class="sr-only" for="search-input">Search by name or skill</label>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+            <input
               type="text" 
               id="search-input" 
-              class="form-input" 
+              class="form-input"
               placeholder="Search by name, department, or skill"
               autocomplete="off"
             >
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label for="filter-skill" class="form-label">Filter by Skill</label>
+          <div class="directory-filter-chip">
+            <label for="filter-skill">Skill</label>
             <select id="filter-skill" class="form-select">
               <!-- Populated via JS -->
             </select>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label for="filter-department" class="form-label">Filter by Department</label>
+          <div class="directory-filter-chip">
+            <label for="filter-department">Department</label>
             <select id="filter-department" class="form-select">
               <!-- Populated via JS -->
             </select>
           </div>
 
           <div class="filter-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-filters" hidden>Clear Filters</button>
+            <button type="button" class="directory-clear-link" id="btn-clear-filters" hidden>Clear filters</button>
           </div>
         </div>
       </div>
 
       <!-- Results Count -->
-      <div style="margin-bottom: 16px; font-size: 13px; color: var(--color-text-muted);" id="results-count" role="status" aria-live="polite">
+      <div class="directory-results-meta" id="results-count" role="status" aria-live="polite">
         Loading students...
       </div>
 
       <!-- Students Grid -->
-      <div class="students-grid" id="students-grid">
+      <div class="students-grid directory-skeleton-grid" id="directory-skeleton-grid" aria-hidden="true">
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+        <div class="student-skeleton-card"><span></span><div></div><i></i><i></i></div>
+      </div>
+      <div class="students-grid" id="students-grid" hidden>
         <!-- Rendered via JS -->
       </div>
       <nav class="directory-pagination" id="directory-pagination" aria-label="Student results pages"></nav>

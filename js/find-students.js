@@ -8,6 +8,7 @@ const DIRECTORY_PAGE_SIZE = 12;
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!requireAuth()) return;
+  showDirectorySkeleton(true);
   try {
     await loadDirectoryData();
     initFilters();
@@ -21,11 +22,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("filter-department")?.addEventListener("change", () => { directoryPage = 1; renderStudentDirectory(); });
     document.getElementById("btn-clear-filters")?.addEventListener("click", () => { document.getElementById("search-input").value = ""; document.getElementById("filter-skill").value = ""; document.getElementById("filter-department").value = ""; directoryPage = 1; renderStudentDirectory(); });
   } catch (error) {
+    showDirectorySkeleton(false);
     const count = document.getElementById("results-count");
     if (count) count.textContent = "Could not load students.";
     showToast(error.message, "error");
   }
 });
+
+function showDirectorySkeleton(isLoading) {
+  const skeleton = document.getElementById("directory-skeleton-grid");
+  const studentsGrid = document.getElementById("students-grid");
+  if (skeleton) skeleton.hidden = !isLoading;
+  if (studentsGrid) studentsGrid.hidden = isLoading;
+}
 
 // One fetch round-trip (4 requests total). Search and filters then run client-side on this cache.
 async function loadDirectoryData() {
@@ -59,6 +68,7 @@ function initFilters() {
 function renderStudentDirectory() {
   const container = document.getElementById("students-grid");
   if (!container) return;
+  showDirectorySkeleton(false);
   const user = getCurrentUser();
   const userRequests = directoryRequests;
   const enriched = directoryStudents;
